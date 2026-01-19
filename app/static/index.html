@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DrawDrum - Admin Panel</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="admin-page">
+    <div class="container">
+        <header class="header">
+            <h1 class="logo">
+                <span class="logo-icon">◉</span>
+                DrawDrum
+            </h1>
+            <a href="/display" target="_blank" class="btn btn-secondary">
+                <span class="btn-icon">↗</span>
+                Open Display
+            </a>
+        </header>
+
+        <main class="main-content">
+            <!-- Input Panel -->
+            <section class="card input-panel">
+                <div class="card-header">
+                    <h2>Display Settings</h2>
+                    <div class="status-indicator" id="connectionStatus">
+                        <span class="status-dot"></span>
+                        <span class="status-text">Connecting...</span>
+                    </div>
+                </div>
+                
+                <div class="card-body">
+                    <!-- Passport Text Input -->
+                    <div class="form-group">
+                        <label for="passportText">
+                            Passport Numbers
+                            <span class="label-hint">Supports line breaks and formatting</span>
+                        </label>
+                        <textarea 
+                            id="passportText" 
+                            placeholder="Enter passport numbers...&#10;Use **text** for bold&#10;Use #FF0000:text for colors"
+                            rows="6"
+                        ></textarea>
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-primary" id="updateTextBtn">
+                                Update Text
+                            </button>
+                            <button type="button" class="btn btn-ghost" id="clearTextBtn">
+                                Clear
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Logo Upload -->
+                    <div class="form-group">
+                        <label for="logoUpload">
+                            Logo Image
+                            <span class="label-hint">PNG, JPEG, GIF, or WebP</span>
+                        </label>
+                        <div class="upload-area" id="uploadArea">
+                            <input type="file" id="logoUpload" accept="image/*" hidden>
+                            <div class="upload-content">
+                                <span class="upload-icon">📁</span>
+                                <span class="upload-text">Drop image here or click to upload</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Formatting Help -->
+                    <div class="format-help">
+                        <h4>Formatting Guide</h4>
+                        <ul>
+                            <li><code>**text**</code> → <strong>bold text</strong></li>
+                            <li><code>#FF0000:text</code> → <span style="color:#FF0000">colored text</span></li>
+                            <li><code>##large text##</code> → larger text</li>
+                            <li>Line breaks are preserved</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Preview Panel -->
+            <section class="card preview-panel">
+                <div class="card-header">
+                    <h2>Live Preview</h2>
+                </div>
+                <div class="card-body preview-body">
+                    <div class="preview-container" id="previewContainer">
+                        <div class="preview-logo" id="previewLogo">
+                            <span class="placeholder-text">No logo uploaded</span>
+                        </div>
+                        <div class="preview-text" id="previewText">
+                            <span class="placeholder-text">Enter text above to preview</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="/static/app.js"></script>
+    <script>
+        // Initialize admin panel
+        document.addEventListener('DOMContentLoaded', () => {
+            initAdmin();
+        });
+    </script>
+</body>
+</html>
