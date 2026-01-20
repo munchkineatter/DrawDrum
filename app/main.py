@@ -15,6 +15,7 @@ from app.database import (
     get_settings, 
     update_passport_text, 
     update_logo_path,
+    update_text_formatting,
     UPLOADS_DIR
 )
 
@@ -96,17 +97,42 @@ async def api_get_settings():
 
 @app.post("/api/passport")
 async def api_update_passport(data: dict):
-    """Update passport text and broadcast to all clients."""
+    """Update passport text and formatting, then broadcast to all clients."""
     text = data.get("text", "")
+    formatting = data.get("formatting", {})
+    
     settings = await update_passport_text(text)
+    if formatting:
+        settings = await update_text_formatting(formatting)
     
     # Broadcast update to all connected display clients
     await manager.broadcast({
         "type": "passport_update",
-        "passport_text": settings["passport_text"]
+        "passport_text": settings["passport_text"],
+        "formatting": {
+            "color": settings.get("text_color", "#FFFFFF"),
+            "size": settings.get("text_size", "normal"),
+            "style": settings.get("text_style", "normal")
+        }
     })
     
     return JSONResponse({"success": True, "settings": settings})
+
+
+@app.post("/api/timer")
+async def api_timer_action(data: dict):
+    """Handle timer actions and broadcast to all clients."""
+    action = data.get("action", "")
+    duration = data.get("duration", 0)
+    
+    # Broadcast timer action to all connected clients
+    await manager.broadcast({
+        "type": "timer_action",
+        "action": action,
+        "duration": duration
+    })
+    
+    return JSONResponse({"success": True})
 
 
 @app.post("/api/logo")
@@ -166,21 +192,43 @@ async def websocket_endpoint(websocket: WebSocket):
     await websocket.send_json({
         "type": "init",
         "passport_text": settings["passport_text"],
-        "logo_path": settings["logo_path"]
+        "logo_path": settings["logo_path"],
+        "formatting": {
+            "color": settings.get("text_color", "#FFFFFF"),
+            "size": settings.get("text_size", "normal"),
+            "style": settings.get("text_style", "normal")
+        }
     })
     
     try:
         while True:
             # Keep connection alive, listen for client messages
             data = await websocket.receive_json()
+            msg_type = data.get("type", "")
             
             # Handle different message types from admin panel
-            if data.get("type") == "passport_update":
+            if msg_type == "passport_update":
                 text = data.get("text", "")
+                formatting = data.get("formatting", {})
                 settings = await update_passport_text(text)
+                if formatting:
+                    settings = await update_text_formatting(formatting)
                 await manager.broadcast({
                     "type": "passport_update",
-                    "passport_text": settings["passport_text"]
+                    "passport_text": settings["passport_text"],
+                    "formatting": {
+                        "color": settings.get("text_color", "#FFFFFF"),
+                        "size": settings.get("text_size", "normal"),
+                        "style": settings.get("text_style", "normal")
+                    }
+                })
+            
+            elif msg_type == "timer_action":
+                # Broadcast timer action to all clients
+                await manager.broadcast({
+                    "type": "timer_action",
+                    "action": data.get("action", ""),
+                    "duration": data.get("duration", 0)
                 })
             
     except WebSocketDisconnect:

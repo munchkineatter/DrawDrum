@@ -38,12 +38,47 @@
                     <div class="form-group">
                         <label for="passportText">
                             Passport Numbers
-                            <span class="label-hint">Supports line breaks and formatting</span>
+                            <span class="label-hint">Enter text with line breaks</span>
                         </label>
+                        
+                        <!-- Formatting Controls -->
+                        <div class="format-controls">
+                            <div class="format-control">
+                                <label for="textColor">Color</label>
+                                <select id="textColor">
+                                    <option value="#FFFFFF">White</option>
+                                    <option value="#EF4444">Red</option>
+                                    <option value="#22C55E">Green</option>
+                                    <option value="#3B82F6">Blue</option>
+                                    <option value="#EAB308">Yellow</option>
+                                    <option value="#F97316">Orange</option>
+                                    <option value="#A855F7">Purple</option>
+                                    <option value="#EC4899">Pink</option>
+                                    <option value="#06B6D4">Cyan</option>
+                                    <option value="#FFD700">Gold</option>
+                                </select>
+                            </div>
+                            <div class="format-control">
+                                <label for="textSize">Size</label>
+                                <select id="textSize">
+                                    <option value="normal">Normal</option>
+                                    <option value="large">Large</option>
+                                    <option value="xlarge">Extra Large</option>
+                                </select>
+                            </div>
+                            <div class="format-control">
+                                <label for="textStyle">Style</label>
+                                <select id="textStyle">
+                                    <option value="normal">Normal</option>
+                                    <option value="bold">Bold</option>
+                                </select>
+                            </div>
+                        </div>
+
                         <textarea 
                             id="passportText" 
-                            placeholder="Enter passport numbers...&#10;Use **text** for bold&#10;Use #FF0000:text for colors"
-                            rows="6"
+                            placeholder="Enter passport numbers..."
+                            rows="5"
                         ></textarea>
                         <div class="form-actions">
                             <button type="button" class="btn btn-primary" id="updateTextBtn">
@@ -70,15 +105,22 @@
                         </div>
                     </div>
 
-                    <!-- Formatting Help -->
-                    <div class="format-help">
-                        <h4>Formatting Guide</h4>
-                        <ul>
-                            <li><code>**text**</code> → <strong>bold text</strong></li>
-                            <li><code>#FF0000:text</code> → <span style="color:#FF0000">colored text</span></li>
-                            <li><code>##large text##</code> → larger text</li>
-                            <li>Line breaks are preserved</li>
-                        </ul>
+                    <!-- Timer Controls -->
+                    <div class="timer-section">
+                        <h3>Countdown Timer</h3>
+                        <div class="timer-input-group">
+                            <input type="number" id="timerMinutes" class="timer-input" value="5" min="0" max="99" placeholder="MM">
+                            <span class="timer-separator">:</span>
+                            <input type="number" id="timerSeconds" class="timer-input" value="00" min="0" max="59" placeholder="SS">
+                        </div>
+                        <div class="timer-controls">
+                            <button type="button" class="btn btn-success" id="timerStartBtn">▶ Start</button>
+                            <button type="button" class="btn btn-warning" id="timerStopBtn">⏸ Stop</button>
+                            <button type="button" class="btn btn-danger" id="timerResetBtn">↻ Reset</button>
+                        </div>
+                        <div class="timer-preview">
+                            <div class="timer-preview-display" id="timerPreview">05:00</div>
+                        </div>
                     </div>
                 </div>
             </section>

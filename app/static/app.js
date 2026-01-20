@@ -1,41 +1,54 @@
 /**
  * DrawDrum - Client-side JavaScript
- * Handles WebSocket connections, text formatting, and auto-sizing
+ * Handles WebSocket connections, text formatting, timer, and auto-sizing
  */
+
+// ============================================================================
+// Global State
+// ============================================================================
+
+let currentFormatting = {
+    color: '#FFFFFF',
+    size: 'normal',
+    style: 'normal'
+};
+
+let timerState = {
+    duration: 300, // 5 minutes in seconds
+    remaining: 300,
+    isRunning: false,
+    intervalId: null
+};
 
 // ============================================================================
 // Text Formatting Engine
 // ============================================================================
 
 /**
- * Parse and format text with custom markdown-like syntax
- * Supports:
- * - **bold** -> <strong>bold</strong>
- * - #FF0000:text -> <span style="color:#FF0000">text</span>
- * - ##large## -> <span class="text-large">large</span>
- * - Line breaks preserved
+ * Format text with the current formatting settings
  */
-function formatText(text) {
+function formatTextWithSettings(text, formatting) {
     if (!text || text.trim() === '') {
         return '';
     }
 
     let formatted = escapeHtml(text);
-
-    // Process ##large text## -> larger text
-    formatted = formatted.replace(/##([^#]+)##/g, '<span class="text-large">$1</span>');
-
-    // Process **bold** -> strong
-    formatted = formatted.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
-
-    // Process #RRGGBB:text -> colored text (matches until space or end of line)
-    formatted = formatted.replace(/#([A-Fa-f0-9]{6}):([^\n]+)/g, 
-        '<span style="color:#$1">$2</span>');
-
+    
     // Convert line breaks to <br>
     formatted = formatted.replace(/\n/g, '<br>');
 
-    return formatted;
+    // Apply formatting
+    const color = formatting.color || '#FFFFFF';
+    const size = formatting.size || 'normal';
+    const style = formatting.style || 'normal';
+
+    let sizeClass = '';
+    if (size === 'large') sizeClass = 'text-large';
+    if (size === 'xlarge') sizeClass = 'text-xlarge';
+
+    let styleTag = style === 'bold' ? 'strong' : 'span';
+    
+    return `<${styleTag} class="${sizeClass}" style="color: ${color}">${formatted}</${styleTag}>`;
 }
 
 /**
@@ -48,6 +61,29 @@ function escapeHtml(text) {
 }
 
 // ============================================================================
+// Timer Functions
+// ============================================================================
+
+/**
+ * Format seconds to MM:SS display
+ */
+function formatTime(totalSeconds) {
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+}
+
+/**
+ * Get timer warning class based on remaining time
+ */
+function getTimerClass(remaining) {
+    if (remaining <= 0) return 'finished';
+    if (remaining <= 10) return 'danger';
+    if (remaining <= 30) return 'warning';
+    return '';
+}
+
+// ============================================================================
 // Auto-sizing Text
 // ============================================================================
 
@@ -55,7 +91,7 @@ function escapeHtml(text) {
  * Auto-size text to fit container
  * Uses binary search for optimal font size
  */
-function autoSizeText(element, container, minSize = 16, maxSize = 120) {
+function autoSizeText(element, container, minSize = 24, maxSize = 300) {
     if (!element || !container) return;
 
     const containerWidth = container.clientWidth;
@@ -178,6 +214,21 @@ function initAdmin() {
     const previewText = document.getElementById('previewText');
     const previewLogo = document.getElementById('previewLogo');
     const connectionStatus = document.getElementById('connectionStatus');
+    
+    // Formatting controls
+    const textColor = document.getElementById('textColor');
+    const textSize = document.getElementById('textSize');
+    const textStyle = document.getElementById('textStyle');
+    
+    // Timer controls
+    const timerMinutes = document.getElementById('timerMinutes');
+    const timerSeconds = document.getElementById('timerSeconds');
+    const timerStartBtn = document.getElementById('timerStartBtn');
+    const timerStopBtn = document.getElementById('timerStopBtn');
+    const timerResetBtn = document.getElementById('timerResetBtn');
+    const timerPreview = document.getElementById('timerPreview');
+
+    let wsManager = null;
 
     // Update status indicator
     function updateStatus(status) {
@@ -203,37 +254,61 @@ function initAdmin() {
         }
     }
 
+    // Get current formatting from dropdowns
+    function getCurrentFormatting() {
+        return {
+            color: textColor.value,
+            size: textSize.value,
+            style: textStyle.value
+        };
+    }
+
     // Handle incoming WebSocket messages
     function handleMessage(data) {
         switch (data.type) {
             case 'init':
                 if (data.passport_text) {
                     passportTextarea.value = data.passport_text;
-                    updatePreviewText(data.passport_text);
                 }
+                if (data.formatting) {
+                    currentFormatting = data.formatting;
+                    textColor.value = data.formatting.color || '#FFFFFF';
+                    textSize.value = data.formatting.size || 'normal';
+                    textStyle.value = data.formatting.style || 'normal';
+                }
+                updatePreviewText();
                 if (data.logo_path) {
                     updatePreviewLogo(data.logo_path);
                 }
                 break;
             case 'passport_update':
-                updatePreviewText(data.passport_text);
+                if (data.formatting) {
+                    currentFormatting = data.formatting;
+                }
+                updatePreviewText();
                 break;
             case 'logo_update':
                 updatePreviewLogo(data.logo_path);
+                break;
+            case 'timer_action':
+                handleTimerAction(data.action, data.duration);
                 break;
         }
     }
 
     // Initialize WebSocket
-    const wsManager = new WebSocketManager(handleMessage, updateStatus);
+    wsManager = new WebSocketManager(handleMessage, updateStatus);
     wsManager.connect();
 
     // Update preview text with formatting
-    function updatePreviewText(text) {
+    function updatePreviewText() {
+        const text = passportTextarea.value;
+        const formatting = getCurrentFormatting();
+        
         if (!text || text.trim() === '') {
             previewText.innerHTML = '<span class="placeholder-text">Enter text above to preview</span>';
         } else {
-            previewText.innerHTML = formatText(text);
+            previewText.innerHTML = formatTextWithSettings(text, formatting);
         }
     }
 
@@ -246,20 +321,22 @@ function initAdmin() {
         }
     }
 
-    // Live preview as user types
-    passportTextarea.addEventListener('input', () => {
-        updatePreviewText(passportTextarea.value);
-    });
+    // Live preview as user types or changes formatting
+    passportTextarea.addEventListener('input', updatePreviewText);
+    textColor.addEventListener('change', updatePreviewText);
+    textSize.addEventListener('change', updatePreviewText);
+    textStyle.addEventListener('change', updatePreviewText);
 
     // Update text button
     updateTextBtn.addEventListener('click', async () => {
         const text = passportTextarea.value;
+        const formatting = getCurrentFormatting();
         
         try {
             const response = await fetch('/api/passport', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ text })
+                body: JSON.stringify({ text, formatting })
             });
             
             if (!response.ok) throw new Error('Failed to update');
@@ -283,13 +360,13 @@ function initAdmin() {
     // Clear text button
     clearTextBtn.addEventListener('click', async () => {
         passportTextarea.value = '';
-        updatePreviewText('');
+        updatePreviewText();
         
         try {
             await fetch('/api/passport', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ text: '' })
+                body: JSON.stringify({ text: '', formatting: getCurrentFormatting() })
             });
         } catch (error) {
             console.error('Error clearing text:', error);
@@ -355,6 +432,142 @@ function initAdmin() {
             uploadArea.classList.remove('uploading');
         }
     }
+
+    // ========================================================================
+    // Timer Controls
+    // ========================================================================
+
+    function getTimerDuration() {
+        const mins = parseInt(timerMinutes.value) || 0;
+        const secs = parseInt(timerSeconds.value) || 0;
+        return mins * 60 + secs;
+    }
+
+    function updateTimerPreview() {
+        timerPreview.textContent = formatTime(timerState.remaining);
+        timerPreview.className = 'timer-preview-display ' + getTimerClass(timerState.remaining);
+    }
+
+    function handleTimerAction(action, duration) {
+        switch (action) {
+            case 'start':
+                if (duration !== undefined) {
+                    timerState.duration = duration;
+                    timerState.remaining = duration;
+                }
+                timerState.isRunning = true;
+                startTimerInterval();
+                break;
+            case 'stop':
+                timerState.isRunning = false;
+                stopTimerInterval();
+                break;
+            case 'reset':
+                timerState.remaining = timerState.duration;
+                timerState.isRunning = false;
+                stopTimerInterval();
+                updateTimerPreview();
+                break;
+            case 'tick':
+                timerState.remaining = duration;
+                updateTimerPreview();
+                break;
+        }
+    }
+
+    function startTimerInterval() {
+        stopTimerInterval();
+        timerState.intervalId = setInterval(() => {
+            if (timerState.remaining > 0) {
+                timerState.remaining--;
+                updateTimerPreview();
+            } else {
+                timerState.isRunning = false;
+                stopTimerInterval();
+            }
+        }, 1000);
+    }
+
+    function stopTimerInterval() {
+        if (timerState.intervalId) {
+            clearInterval(timerState.intervalId);
+            timerState.intervalId = null;
+        }
+    }
+
+    // Timer input changes
+    timerMinutes.addEventListener('change', () => {
+        timerState.duration = getTimerDuration();
+        timerState.remaining = timerState.duration;
+        updateTimerPreview();
+    });
+
+    timerSeconds.addEventListener('change', () => {
+        timerState.duration = getTimerDuration();
+        timerState.remaining = timerState.duration;
+        updateTimerPreview();
+    });
+
+    // Start button
+    timerStartBtn.addEventListener('click', async () => {
+        const duration = getTimerDuration();
+        timerState.duration = duration;
+        timerState.remaining = duration;
+        timerState.isRunning = true;
+        startTimerInterval();
+        updateTimerPreview();
+        
+        try {
+            await fetch('/api/timer', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'start', duration })
+            });
+        } catch (error) {
+            console.error('Error starting timer:', error);
+        }
+    });
+
+    // Stop button
+    timerStopBtn.addEventListener('click', async () => {
+        timerState.isRunning = false;
+        stopTimerInterval();
+        
+        try {
+            await fetch('/api/timer', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'stop', duration: timerState.remaining })
+            });
+        } catch (error) {
+            console.error('Error stopping timer:', error);
+        }
+    });
+
+    // Reset button
+    timerResetBtn.addEventListener('click', async () => {
+        const duration = getTimerDuration();
+        timerState.duration = duration;
+        timerState.remaining = duration;
+        timerState.isRunning = false;
+        stopTimerInterval();
+        updateTimerPreview();
+        
+        try {
+            await fetch('/api/timer', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'reset', duration })
+            });
+        } catch (error) {
+            console.error('Error resetting timer:', error);
+        }
+    });
+
+    // Initialize timer preview
+    timerState.duration = getTimerDuration();
+    timerState.remaining = timerState.duration;
+    updateTimerPreview();
 }
 
 // ============================================================================
@@ -364,8 +577,11 @@ function initAdmin() {
 function initDisplay() {
     const displayText = document.getElementById('displayText');
     const displayLogo = document.getElementById('displayLogo');
+    const displayTimer = document.getElementById('displayTimer');
     const connectionOverlay = document.getElementById('connectionOverlay');
     const displayTextWrapper = document.querySelector('.display-text-wrapper');
+
+    let displayFormatting = { color: '#FFFFFF', size: 'normal', style: 'normal' };
 
     // Update connection overlay
     function updateConnectionStatus(status) {
@@ -388,10 +604,10 @@ function initDisplay() {
             displayText.innerHTML = '<span class="waiting-text">Waiting for data...</span>';
             displayText.style.fontSize = '';
         } else {
-            displayText.innerHTML = formatText(text);
+            displayText.innerHTML = formatTextWithSettings(text, displayFormatting);
             // Apply auto-sizing after content update
             requestAnimationFrame(() => {
-                autoSizeText(displayText, displayTextWrapper, 24, 200);
+                autoSizeText(displayText, displayTextWrapper, 32, 400);
             });
         }
     }
@@ -407,14 +623,46 @@ function initDisplay() {
         }
     }
 
+    // Update timer display
+    function updateTimerDisplay() {
+        displayTimer.textContent = formatTime(timerState.remaining);
+        displayTimer.className = 'display-timer ' + getTimerClass(timerState.remaining);
+    }
+
+    function startDisplayTimer() {
+        stopDisplayTimer();
+        timerState.intervalId = setInterval(() => {
+            if (timerState.remaining > 0) {
+                timerState.remaining--;
+                updateTimerDisplay();
+            } else {
+                timerState.isRunning = false;
+                stopDisplayTimer();
+            }
+        }, 1000);
+    }
+
+    function stopDisplayTimer() {
+        if (timerState.intervalId) {
+            clearInterval(timerState.intervalId);
+            timerState.intervalId = null;
+        }
+    }
+
     // Handle incoming WebSocket messages
     function handleMessage(data) {
         switch (data.type) {
             case 'init':
+                if (data.formatting) {
+                    displayFormatting = data.formatting;
+                }
                 updateDisplayText(data.passport_text);
                 updateDisplayLogo(data.logo_path);
                 break;
             case 'passport_update':
+                if (data.formatting) {
+                    displayFormatting = data.formatting;
+                }
                 // Add animation class
                 displayText.classList.add('updating');
                 setTimeout(() => {
@@ -429,6 +677,36 @@ function initDisplay() {
                     displayLogo.classList.remove('updating');
                 }, 150);
                 break;
+            case 'timer_action':
+                handleDisplayTimerAction(data.action, data.duration);
+                break;
+        }
+    }
+
+    function handleDisplayTimerAction(action, duration) {
+        switch (action) {
+            case 'start':
+                timerState.duration = duration;
+                timerState.remaining = duration;
+                timerState.isRunning = true;
+                updateTimerDisplay();
+                startDisplayTimer();
+                break;
+            case 'stop':
+                timerState.isRunning = false;
+                stopDisplayTimer();
+                if (duration !== undefined) {
+                    timerState.remaining = duration;
+                    updateTimerDisplay();
+                }
+                break;
+            case 'reset':
+                timerState.duration = duration;
+                timerState.remaining = duration;
+                timerState.isRunning = false;
+                stopDisplayTimer();
+                updateTimerDisplay();
+                break;
         }
     }
 
@@ -439,9 +717,12 @@ function initDisplay() {
     // Re-calculate text size on window resize
     const handleResize = debounce(() => {
         if (displayText.textContent && !displayText.querySelector('.waiting-text')) {
-            autoSizeText(displayText, displayTextWrapper, 24, 200);
+            autoSizeText(displayText, displayTextWrapper, 32, 400);
         }
     }, 100);
 
     window.addEventListener('resize', handleResize);
+
+    // Initialize timer display
+    updateTimerDisplay();
 }
