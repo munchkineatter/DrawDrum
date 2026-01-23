@@ -606,13 +606,21 @@ textarea::placeholder {
    ============================================================================ */
 
 .display-timer {
+    position: fixed;
+    top: var(--space-lg);
+    right: var(--space-xl);
     font-family: var(--font-mono);
-    font-size: clamp(4rem, 15vw, 12rem);
+    font-size: 96px;
     font-weight: 700;
     color: var(--text-primary);
     text-shadow: 0 4px 40px rgba(0, 0, 0, 0.6);
     letter-spacing: 0.05em;
-    transition: color var(--transition-normal), transform var(--transition-normal);
+    transition: color var(--transition-normal), font-size var(--transition-normal);
+    z-index: 100;
+}
+
+.display-timer:empty {
+    display: none;
 }
 
 .display-timer.warning {
@@ -744,11 +752,18 @@ select option {
     color: var(--text-primary);
 }
 
+.timer-settings {
+    display: flex;
+    align-items: flex-end;
+    gap: var(--space-lg);
+    margin-bottom: var(--space-md);
+    flex-wrap: wrap;
+}
+
 .timer-input-group {
     display: flex;
     align-items: center;
     gap: var(--space-sm);
-    margin-bottom: var(--space-md);
 }
 
 .timer-input {

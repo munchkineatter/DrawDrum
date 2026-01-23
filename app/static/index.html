@@ -59,18 +59,21 @@
                                 </select>
                             </div>
                             <div class="format-control">
-                                <label for="textSize">Size</label>
-                                <select id="textSize">
-                                    <option value="normal">Normal</option>
-                                    <option value="large">Large</option>
-                                    <option value="xlarge">Extra Large</option>
-                                </select>
-                            </div>
-                            <div class="format-control">
                                 <label for="textStyle">Style</label>
                                 <select id="textStyle">
                                     <option value="normal">Normal</option>
                                     <option value="bold">Bold</option>
+                                </select>
+                            </div>
+                            <div class="format-control">
+                                <label for="displayTextSize">Display Size</label>
+                                <select id="displayTextSize">
+                                    <option value="48">Small (48px)</option>
+                                    <option value="72">Medium (72px)</option>
+                                    <option value="96" selected>Large (96px)</option>
+                                    <option value="128">X-Large (128px)</option>
+                                    <option value="160">XX-Large (160px)</option>
+                                    <option value="200">Huge (200px)</option>
                                 </select>
                             </div>
                         </div>
@@ -108,10 +111,22 @@
                     <!-- Timer Controls -->
                     <div class="timer-section">
                         <h3>Countdown Timer</h3>
-                        <div class="timer-input-group">
-                            <input type="number" id="timerMinutes" class="timer-input" value="5" min="0" max="99" placeholder="MM">
-                            <span class="timer-separator">:</span>
-                            <input type="number" id="timerSeconds" class="timer-input" value="00" min="0" max="59" placeholder="SS">
+                        <div class="timer-settings">
+                            <div class="timer-input-group">
+                                <input type="number" id="timerMinutes" class="timer-input" value="5" min="0" max="99" placeholder="MM">
+                                <span class="timer-separator">:</span>
+                                <input type="number" id="timerSeconds" class="timer-input" value="00" min="0" max="59" placeholder="SS">
+                            </div>
+                            <div class="format-control">
+                                <label for="timerDisplaySize">Timer Size</label>
+                                <select id="timerDisplaySize">
+                                    <option value="48">Small (48px)</option>
+                                    <option value="72">Medium (72px)</option>
+                                    <option value="96" selected>Large (96px)</option>
+                                    <option value="128">X-Large (128px)</option>
+                                    <option value="160">XX-Large (160px)</option>
+                                </select>
+                            </div>
                         </div>
                         <div class="timer-controls">
                             <button type="button" class="btn btn-success" id="timerStartBtn">▶ Start</button>

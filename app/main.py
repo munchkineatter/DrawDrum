@@ -111,8 +111,9 @@ async def api_update_passport(data: dict):
         "passport_text": settings["passport_text"],
         "formatting": {
             "color": settings.get("text_color", "#FFFFFF"),
-            "size": settings.get("text_size", "normal"),
-            "style": settings.get("text_style", "normal")
+            "style": settings.get("text_style", "normal"),
+            "displayTextSize": settings.get("display_text_size", 96),
+            "timerSize": settings.get("timer_size", 96)
         }
     })
     
@@ -124,12 +125,14 @@ async def api_timer_action(data: dict):
     """Handle timer actions and broadcast to all clients."""
     action = data.get("action", "")
     duration = data.get("duration", 0)
+    timer_size = data.get("timerSize", 96)
     
     # Broadcast timer action to all connected clients
     await manager.broadcast({
         "type": "timer_action",
         "action": action,
-        "duration": duration
+        "duration": duration,
+        "timerSize": timer_size
     })
     
     return JSONResponse({"success": True})
@@ -195,8 +198,9 @@ async def websocket_endpoint(websocket: WebSocket):
         "logo_path": settings["logo_path"],
         "formatting": {
             "color": settings.get("text_color", "#FFFFFF"),
-            "size": settings.get("text_size", "normal"),
-            "style": settings.get("text_style", "normal")
+            "style": settings.get("text_style", "normal"),
+            "displayTextSize": settings.get("display_text_size", 96),
+            "timerSize": settings.get("timer_size", 96)
         }
     })
     
@@ -218,8 +222,9 @@ async def websocket_endpoint(websocket: WebSocket):
                     "passport_text": settings["passport_text"],
                     "formatting": {
                         "color": settings.get("text_color", "#FFFFFF"),
-                        "size": settings.get("text_size", "normal"),
-                        "style": settings.get("text_style", "normal")
+                        "style": settings.get("text_style", "normal"),
+                        "displayTextSize": settings.get("display_text_size", 96),
+                        "timerSize": settings.get("timer_size", 96)
                     }
                 })
             
@@ -228,7 +233,8 @@ async def websocket_endpoint(websocket: WebSocket):
                 await manager.broadcast({
                     "type": "timer_action",
                     "action": data.get("action", ""),
-                    "duration": data.get("duration", 0)
+                    "duration": data.get("duration", 0),
+                    "timerSize": data.get("timerSize", 96)
                 })
             
     except WebSocketDisconnect:

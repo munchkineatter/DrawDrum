@@ -1,6 +1,6 @@
 /**
  * DrawDrum - Client-side JavaScript
- * Handles WebSocket connections, text formatting, timer, and auto-sizing
+ * Handles WebSocket connections, text formatting, timer, and user-controlled sizing
  */
 
 // ============================================================================
@@ -9,8 +9,9 @@
 
 let currentFormatting = {
     color: '#FFFFFF',
-    size: 'normal',
-    style: 'normal'
+    style: 'normal',
+    displayTextSize: 96,
+    timerSize: 96
 };
 
 let timerState = {
@@ -39,16 +40,11 @@ function formatTextWithSettings(text, formatting) {
 
     // Apply formatting
     const color = formatting.color || '#FFFFFF';
-    const size = formatting.size || 'normal';
     const style = formatting.style || 'normal';
-
-    let sizeClass = '';
-    if (size === 'large') sizeClass = 'text-large';
-    if (size === 'xlarge') sizeClass = 'text-xlarge';
 
     let styleTag = style === 'bold' ? 'strong' : 'span';
     
-    return `<${styleTag} class="${sizeClass}" style="color: ${color}">${formatted}</${styleTag}>`;
+    return `<${styleTag} style="color: ${color}">${formatted}</${styleTag}>`;
 }
 
 /**
@@ -84,44 +80,9 @@ function getTimerClass(remaining) {
 }
 
 // ============================================================================
-// Auto-sizing Text
+// Debounce Utility
 // ============================================================================
 
-/**
- * Auto-size text to fit container
- * Uses binary search for optimal font size
- */
-function autoSizeText(element, container, minSize = 24, maxSize = 300) {
-    if (!element || !container) return;
-
-    const containerWidth = container.clientWidth;
-    const containerHeight = container.clientHeight;
-
-    if (containerWidth === 0 || containerHeight === 0) return;
-
-    let low = minSize;
-    let high = maxSize;
-    let optimalSize = minSize;
-
-    // Binary search for optimal font size
-    while (low <= high) {
-        const mid = Math.floor((low + high) / 2);
-        element.style.fontSize = `${mid}px`;
-
-        if (element.scrollWidth <= containerWidth && element.scrollHeight <= containerHeight) {
-            optimalSize = mid;
-            low = mid + 1;
-        } else {
-            high = mid - 1;
-        }
-    }
-
-    element.style.fontSize = `${optimalSize}px`;
-}
-
-/**
- * Debounce function for resize handling
- */
 function debounce(func, wait) {
     let timeout;
     return function executedFunction(...args) {
@@ -217,8 +178,9 @@ function initAdmin() {
     
     // Formatting controls
     const textColor = document.getElementById('textColor');
-    const textSize = document.getElementById('textSize');
     const textStyle = document.getElementById('textStyle');
+    const displayTextSize = document.getElementById('displayTextSize');
+    const timerDisplaySize = document.getElementById('timerDisplaySize');
     
     // Timer controls
     const timerMinutes = document.getElementById('timerMinutes');
@@ -258,8 +220,9 @@ function initAdmin() {
     function getCurrentFormatting() {
         return {
             color: textColor.value,
-            size: textSize.value,
-            style: textStyle.value
+            style: textStyle.value,
+            displayTextSize: parseInt(displayTextSize.value) || 96,
+            timerSize: parseInt(timerDisplaySize.value) || 96
         };
     }
 
@@ -273,8 +236,9 @@ function initAdmin() {
                 if (data.formatting) {
                     currentFormatting = data.formatting;
                     textColor.value = data.formatting.color || '#FFFFFF';
-                    textSize.value = data.formatting.size || 'normal';
                     textStyle.value = data.formatting.style || 'normal';
+                    displayTextSize.value = data.formatting.displayTextSize || 96;
+                    timerDisplaySize.value = data.formatting.timerSize || 96;
                 }
                 updatePreviewText();
                 if (data.logo_path) {
@@ -291,7 +255,7 @@ function initAdmin() {
                 updatePreviewLogo(data.logo_path);
                 break;
             case 'timer_action':
-                handleTimerAction(data.action, data.duration);
+                handleTimerAction(data.action, data.duration, data.timerSize);
                 break;
         }
     }
@@ -324,10 +288,10 @@ function initAdmin() {
     // Live preview as user types or changes formatting
     passportTextarea.addEventListener('input', updatePreviewText);
     textColor.addEventListener('change', updatePreviewText);
-    textSize.addEventListener('change', updatePreviewText);
     textStyle.addEventListener('change', updatePreviewText);
+    displayTextSize.addEventListener('change', updatePreviewText);
 
-    // Update text button
+    // Update text button - sends formatting including sizes
     updateTextBtn.addEventListener('click', async () => {
         const text = passportTextarea.value;
         const formatting = getCurrentFormatting();
@@ -448,7 +412,7 @@ function initAdmin() {
         timerPreview.className = 'timer-preview-display ' + getTimerClass(timerState.remaining);
     }
 
-    function handleTimerAction(action, duration) {
+    function handleTimerAction(action, duration, timerSize) {
         switch (action) {
             case 'start':
                 if (duration !== undefined) {
@@ -508,9 +472,10 @@ function initAdmin() {
         updateTimerPreview();
     });
 
-    // Start button
+    // Start button - includes timer size
     timerStartBtn.addEventListener('click', async () => {
         const duration = getTimerDuration();
+        const timerSize = parseInt(timerDisplaySize.value) || 96;
         timerState.duration = duration;
         timerState.remaining = duration;
         timerState.isRunning = true;
@@ -521,7 +486,7 @@ function initAdmin() {
             await fetch('/api/timer', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ action: 'start', duration })
+                body: JSON.stringify({ action: 'start', duration, timerSize })
             });
         } catch (error) {
             console.error('Error starting timer:', error);
@@ -547,6 +512,7 @@ function initAdmin() {
     // Reset button
     timerResetBtn.addEventListener('click', async () => {
         const duration = getTimerDuration();
+        const timerSize = parseInt(timerDisplaySize.value) || 96;
         timerState.duration = duration;
         timerState.remaining = duration;
         timerState.isRunning = false;
@@ -557,7 +523,7 @@ function initAdmin() {
             await fetch('/api/timer', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ action: 'reset', duration })
+                body: JSON.stringify({ action: 'reset', duration, timerSize })
             });
         } catch (error) {
             console.error('Error resetting timer:', error);
@@ -579,9 +545,15 @@ function initDisplay() {
     const displayLogo = document.getElementById('displayLogo');
     const displayTimer = document.getElementById('displayTimer');
     const connectionOverlay = document.getElementById('connectionOverlay');
-    const displayTextWrapper = document.querySelector('.display-text-wrapper');
 
-    let displayFormatting = { color: '#FFFFFF', size: 'normal', style: 'normal' };
+    let displayFormatting = { 
+        color: '#FFFFFF', 
+        style: 'normal',
+        displayTextSize: 96,
+        timerSize: 96
+    };
+    
+    let currentPassportText = '';
 
     // Update connection overlay
     function updateConnectionStatus(status) {
@@ -598,17 +570,15 @@ function initDisplay() {
         }
     }
 
-    // Update display text with auto-sizing
+    // Update display text with user-controlled size
     function updateDisplayText(text) {
+        currentPassportText = text;
         if (!text || text.trim() === '') {
             displayText.innerHTML = '<span class="waiting-text">Waiting for data...</span>';
             displayText.style.fontSize = '';
         } else {
             displayText.innerHTML = formatTextWithSettings(text, displayFormatting);
-            // Apply auto-sizing after content update
-            requestAnimationFrame(() => {
-                autoSizeText(displayText, displayTextWrapper, 32, 400);
-            });
+            displayText.style.fontSize = `${displayFormatting.displayTextSize}px`;
         }
     }
 
@@ -623,18 +593,21 @@ function initDisplay() {
         }
     }
 
-    // Update timer display
-    function updateTimerDisplay() {
+    // Update timer display with user-controlled size
+    function updateTimerDisplay(timerSize) {
         displayTimer.textContent = formatTime(timerState.remaining);
         displayTimer.className = 'display-timer ' + getTimerClass(timerState.remaining);
+        if (timerSize) {
+            displayTimer.style.fontSize = `${timerSize}px`;
+        }
     }
 
-    function startDisplayTimer() {
+    function startDisplayTimer(timerSize) {
         stopDisplayTimer();
         timerState.intervalId = setInterval(() => {
             if (timerState.remaining > 0) {
                 timerState.remaining--;
-                updateTimerDisplay();
+                updateTimerDisplay(timerSize);
             } else {
                 timerState.isRunning = false;
                 stopDisplayTimer();
@@ -654,14 +627,20 @@ function initDisplay() {
         switch (data.type) {
             case 'init':
                 if (data.formatting) {
-                    displayFormatting = data.formatting;
+                    displayFormatting = {
+                        ...displayFormatting,
+                        ...data.formatting
+                    };
                 }
                 updateDisplayText(data.passport_text);
                 updateDisplayLogo(data.logo_path);
                 break;
             case 'passport_update':
                 if (data.formatting) {
-                    displayFormatting = data.formatting;
+                    displayFormatting = {
+                        ...displayFormatting,
+                        ...data.formatting
+                    };
                 }
                 // Add animation class
                 displayText.classList.add('updating');
@@ -678,26 +657,31 @@ function initDisplay() {
                 }, 150);
                 break;
             case 'timer_action':
-                handleDisplayTimerAction(data.action, data.duration);
+                handleDisplayTimerAction(data.action, data.duration, data.timerSize);
                 break;
         }
     }
 
-    function handleDisplayTimerAction(action, duration) {
+    function handleDisplayTimerAction(action, duration, timerSize) {
+        // Store timer size if provided
+        if (timerSize) {
+            displayFormatting.timerSize = timerSize;
+        }
+        
         switch (action) {
             case 'start':
                 timerState.duration = duration;
                 timerState.remaining = duration;
                 timerState.isRunning = true;
-                updateTimerDisplay();
-                startDisplayTimer();
+                updateTimerDisplay(timerSize || displayFormatting.timerSize);
+                startDisplayTimer(timerSize || displayFormatting.timerSize);
                 break;
             case 'stop':
                 timerState.isRunning = false;
                 stopDisplayTimer();
                 if (duration !== undefined) {
                     timerState.remaining = duration;
-                    updateTimerDisplay();
+                    updateTimerDisplay(displayFormatting.timerSize);
                 }
                 break;
             case 'reset':
@@ -705,7 +689,7 @@ function initDisplay() {
                 timerState.remaining = duration;
                 timerState.isRunning = false;
                 stopDisplayTimer();
-                updateTimerDisplay();
+                updateTimerDisplay(timerSize || displayFormatting.timerSize);
                 break;
         }
     }
@@ -714,15 +698,6 @@ function initDisplay() {
     const wsManager = new WebSocketManager(handleMessage, updateConnectionStatus);
     wsManager.connect();
 
-    // Re-calculate text size on window resize
-    const handleResize = debounce(() => {
-        if (displayText.textContent && !displayText.querySelector('.waiting-text')) {
-            autoSizeText(displayText, displayTextWrapper, 32, 400);
-        }
-    }, 100);
-
-    window.addEventListener('resize', handleResize);
-
-    // Initialize timer display
-    updateTimerDisplay();
+    // Initialize timer display (hidden until started)
+    displayTimer.textContent = '';
 }
