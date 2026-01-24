@@ -99,11 +99,17 @@
                             Logo Image
                             <span class="label-hint">PNG, JPEG, GIF, or WebP</span>
                         </label>
-                        <div class="upload-area" id="uploadArea">
-                            <input type="file" id="logoUpload" accept="image/*" hidden>
-                            <div class="upload-content">
-                                <span class="upload-icon">📁</span>
-                                <span class="upload-text">Drop image here or click to upload</span>
+                        <div class="logo-upload-container">
+                            <div class="upload-area" id="uploadArea">
+                                <input type="file" id="logoUpload" accept="image/*" hidden>
+                                <div class="upload-content">
+                                    <span class="upload-icon">📁</span>
+                                    <span class="upload-text">Drop image here or click to upload</span>
+                                </div>
+                            </div>
+                            <div class="current-logo-preview" id="currentLogoPreview" style="display: none;">
+                                <img id="currentLogoImg" src="" alt="Current Logo">
+                                <button type="button" class="btn btn-danger btn-sm" id="deleteLogoBtn">Delete Logo</button>
                             </div>
                         </div>
                     </div>

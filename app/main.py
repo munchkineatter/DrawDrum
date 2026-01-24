@@ -172,6 +172,32 @@ async def api_upload_logo(file: UploadFile = File(...)):
     return JSONResponse({"success": True, "logo_path": logo_url})
 
 
+@app.delete("/api/logo")
+async def api_delete_logo():
+    """Delete the current logo and broadcast to all clients."""
+    # Get current logo path
+    settings = await get_settings()
+    current_logo = settings.get("logo_path", "")
+    
+    # Delete the file if it exists
+    if current_logo:
+        filename = current_logo.replace("/uploads/", "")
+        filepath = os.path.join(UPLOADS_DIR, filename)
+        if os.path.exists(filepath):
+            os.remove(filepath)
+    
+    # Clear logo path in database
+    settings = await update_logo_path("")
+    
+    # Broadcast update to all connected display clients
+    await manager.broadcast({
+        "type": "logo_update",
+        "logo_path": ""
+    })
+    
+    return JSONResponse({"success": True})
+
+
 @app.get("/uploads/{filename}")
 async def serve_upload(filename: str):
     """Serve uploaded files."""

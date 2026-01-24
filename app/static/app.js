@@ -176,6 +176,11 @@ function initAdmin() {
     const previewLogo = document.getElementById('previewLogo');
     const connectionStatus = document.getElementById('connectionStatus');
     
+    // Logo preview/delete elements
+    const currentLogoPreview = document.getElementById('currentLogoPreview');
+    const currentLogoImg = document.getElementById('currentLogoImg');
+    const deleteLogoBtn = document.getElementById('deleteLogoBtn');
+    
     // Formatting controls
     const textColor = document.getElementById('textColor');
     const textStyle = document.getElementById('textStyle');
@@ -241,9 +246,8 @@ function initAdmin() {
                     timerDisplaySize.value = data.formatting.timerSize || 96;
                 }
                 updatePreviewText();
-                if (data.logo_path) {
-                    updatePreviewLogo(data.logo_path);
-                }
+                // Always call updatePreviewLogo to show/hide the current logo preview
+                updatePreviewLogo(data.logo_path || '');
                 break;
             case 'passport_update':
                 if (data.formatting) {
@@ -276,14 +280,40 @@ function initAdmin() {
         }
     }
 
-    // Update preview logo
+    // Update preview logo and current logo preview
     function updatePreviewLogo(path) {
         if (path) {
             previewLogo.innerHTML = `<img src="${path}" alt="Logo" class="logo-image">`;
+            // Show current logo preview with delete button
+            currentLogoImg.src = path;
+            currentLogoPreview.style.display = 'flex';
         } else {
             previewLogo.innerHTML = '<span class="placeholder-text">No logo uploaded</span>';
+            // Hide current logo preview
+            currentLogoPreview.style.display = 'none';
+            currentLogoImg.src = '';
         }
     }
+
+    // Delete logo button handler
+    deleteLogoBtn.addEventListener('click', async () => {
+        if (!confirm('Are you sure you want to delete the logo?')) {
+            return;
+        }
+        
+        try {
+            const response = await fetch('/api/logo', {
+                method: 'DELETE'
+            });
+            
+            if (!response.ok) throw new Error('Failed to delete');
+            
+            updatePreviewLogo('');
+        } catch (error) {
+            console.error('Error deleting logo:', error);
+            alert('Failed to delete logo');
+        }
+    });
 
     // Live preview as user types or changes formatting
     passportTextarea.addEventListener('input', updatePreviewText);
@@ -635,7 +665,7 @@ function initDisplay() {
     function updateDisplayText(text) {
         currentPassportText = text;
         if (!text || text.trim() === '') {
-            displayText.innerHTML = '<span class="waiting-text">Waiting for data...</span>';
+            displayText.innerHTML = '';
             displayText.style.fontSize = '';
         } else {
             displayText.innerHTML = formatTextWithSettings(text, displayFormatting);
