@@ -274,7 +274,7 @@ function initAdmin() {
         const formatting = getCurrentFormatting();
         
         if (!text || text.trim() === '') {
-            previewText.innerHTML = '<span class="placeholder-text">Enter text above to preview</span>';
+            previewText.innerHTML = '<span class="placeholder-text">Enter text to preview</span>';
         } else {
             previewText.innerHTML = formatTextWithSettings(text, formatting);
         }
@@ -283,12 +283,12 @@ function initAdmin() {
     // Update preview logo and current logo preview
     function updatePreviewLogo(path) {
         if (path) {
-            previewLogo.innerHTML = `<img src="${path}" alt="Logo" class="logo-image">`;
+            previewLogo.innerHTML = `<img src="${path}" alt="Logo">`;
             // Show current logo preview with delete button
             currentLogoImg.src = path;
             currentLogoPreview.style.display = 'flex';
         } else {
-            previewLogo.innerHTML = '<span class="placeholder-text">No logo uploaded</span>';
+            previewLogo.innerHTML = '';
             // Hide current logo preview
             currentLogoPreview.style.display = 'none';
             currentLogoImg.src = '';
@@ -456,7 +456,12 @@ function initAdmin() {
 
     function updateTimerPreview() {
         timerPreview.textContent = formatTime(timerState.remaining);
-        timerPreview.className = 'timer-preview-display ' + getTimerClass(timerState.remaining);
+        const timerClass = getTimerClass(timerState.remaining);
+        // Remove previous state classes and add new one
+        timerPreview.classList.remove('warning', 'danger', 'finished');
+        if (timerClass) {
+            timerPreview.classList.add(timerClass);
+        }
     }
 
     function handleTimerAction(action, duration, timerSize) {
