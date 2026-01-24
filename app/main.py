@@ -125,7 +125,7 @@ async def api_timer_action(data: dict):
     """Handle timer actions and broadcast to all clients."""
     action = data.get("action", "")
     duration = data.get("duration", 0)
-    timer_size = data.get("timerSize", 96)
+    timer_size = data.get("timerSize", 48)
     
     # Broadcast timer action to all connected clients
     await manager.broadcast({
@@ -234,7 +234,7 @@ async def websocket_endpoint(websocket: WebSocket):
                     "type": "timer_action",
                     "action": data.get("action", ""),
                     "duration": data.get("duration", 0),
-                    "timerSize": data.get("timerSize", 96)
+                    "timerSize": data.get("timerSize", 48)
                 })
             
     except WebSocketDisconnect:

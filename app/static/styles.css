@@ -491,9 +491,10 @@ textarea::placeholder {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     height: 100vh;
     padding: var(--space-lg);
+    padding-top: var(--space-xl);
     position: relative;
     gap: var(--space-md);
 }
@@ -542,9 +543,10 @@ textarea::placeholder {
 
 /* Display Logo */
 .display-logo {
-    margin-bottom: var(--space-lg);
+    margin-bottom: var(--space-md);
     max-width: 50vw;
     transition: transform var(--transition-normal), opacity var(--transition-normal);
+    flex-shrink: 0;
 }
 
 .display-logo.updating {
@@ -610,7 +612,7 @@ textarea::placeholder {
     top: var(--space-lg);
     right: var(--space-xl);
     font-family: var(--font-mono);
-    font-size: 96px;
+    font-size: 48px;
     font-weight: 700;
     color: var(--text-primary);
     text-shadow: 0 4px 40px rgba(0, 0, 0, 0.6);
@@ -767,7 +769,7 @@ select option {
 }
 
 .timer-input {
-    width: 70px;
+    width: 90px;
     padding: var(--space-sm) var(--space-md);
     font-family: var(--font-mono);
     font-size: 1.2rem;

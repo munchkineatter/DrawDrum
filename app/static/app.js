@@ -11,7 +11,7 @@ let currentFormatting = {
     color: '#FFFFFF',
     style: 'normal',
     displayTextSize: 96,
-    timerSize: 96
+    timerSize: 48
 };
 
 let timerState = {
@@ -186,7 +186,7 @@ function initAdmin() {
     const timerMinutes = document.getElementById('timerMinutes');
     const timerSeconds = document.getElementById('timerSeconds');
     const timerStartBtn = document.getElementById('timerStartBtn');
-    const timerStopBtn = document.getElementById('timerStopBtn');
+    const timerPauseBtn = document.getElementById('timerPauseBtn');
     const timerResetBtn = document.getElementById('timerResetBtn');
     const timerPreview = document.getElementById('timerPreview');
 
@@ -291,7 +291,7 @@ function initAdmin() {
     textStyle.addEventListener('change', updatePreviewText);
     displayTextSize.addEventListener('change', updatePreviewText);
 
-    // Update text button - sends formatting including sizes
+    // Update text button - sends formatting including sizes AND auto-starts timer
     updateTextBtn.addEventListener('click', async () => {
         const text = passportTextarea.value;
         const formatting = getCurrentFormatting();
@@ -304,6 +304,23 @@ function initAdmin() {
             });
             
             if (!response.ok) throw new Error('Failed to update');
+            
+            // Auto-start the timer when text is pushed
+            const duration = getTimerDuration();
+            const timerSize = parseInt(timerDisplaySize.value) || 48;
+            timerState.duration = duration;
+            timerState.remaining = duration;
+            timerState.isRunning = true;
+            startTimerInterval();
+            updateTimerPreview();
+            updatePauseButtonState();
+            
+            // Send timer start to display
+            await fetch('/api/timer', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'start', duration, timerSize })
+            });
             
             // Visual feedback
             updateTextBtn.textContent = 'Updated!';
@@ -421,16 +438,27 @@ function initAdmin() {
                 }
                 timerState.isRunning = true;
                 startTimerInterval();
+                updatePauseButtonState();
                 break;
-            case 'stop':
+            case 'pause':
                 timerState.isRunning = false;
                 stopTimerInterval();
+                updatePauseButtonState();
+                break;
+            case 'resume':
+                if (duration !== undefined) {
+                    timerState.remaining = duration;
+                }
+                timerState.isRunning = true;
+                startTimerInterval();
+                updatePauseButtonState();
                 break;
             case 'reset':
                 timerState.remaining = timerState.duration;
                 timerState.isRunning = false;
                 stopTimerInterval();
                 updateTimerPreview();
+                updatePauseButtonState();
                 break;
             case 'tick':
                 timerState.remaining = duration;
@@ -475,12 +503,13 @@ function initAdmin() {
     // Start button - includes timer size
     timerStartBtn.addEventListener('click', async () => {
         const duration = getTimerDuration();
-        const timerSize = parseInt(timerDisplaySize.value) || 96;
+        const timerSize = parseInt(timerDisplaySize.value) || 48;
         timerState.duration = duration;
         timerState.remaining = duration;
         timerState.isRunning = true;
         startTimerInterval();
         updateTimerPreview();
+        updatePauseButtonState();
         
         try {
             await fetch('/api/timer', {
@@ -493,31 +522,63 @@ function initAdmin() {
         }
     });
 
-    // Stop button
-    timerStopBtn.addEventListener('click', async () => {
-        timerState.isRunning = false;
-        stopTimerInterval();
-        
-        try {
-            await fetch('/api/timer', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ action: 'stop', duration: timerState.remaining })
-            });
-        } catch (error) {
-            console.error('Error stopping timer:', error);
+    // Update pause button text based on state
+    function updatePauseButtonState() {
+        if (timerState.isRunning) {
+            timerPauseBtn.textContent = '⏸ Pause';
+        } else {
+            timerPauseBtn.textContent = '▶ Resume';
+        }
+    }
+
+    // Pause/Resume button (toggle)
+    timerPauseBtn.addEventListener('click', async () => {
+        if (timerState.isRunning) {
+            // Pause the timer
+            timerState.isRunning = false;
+            stopTimerInterval();
+            updatePauseButtonState();
+            
+            try {
+                await fetch('/api/timer', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'pause', duration: timerState.remaining })
+                });
+            } catch (error) {
+                console.error('Error pausing timer:', error);
+            }
+        } else {
+            // Resume the timer (only if there's remaining time)
+            if (timerState.remaining > 0) {
+                timerState.isRunning = true;
+                startTimerInterval();
+                updatePauseButtonState();
+                
+                const timerSize = parseInt(timerDisplaySize.value) || 48;
+                try {
+                    await fetch('/api/timer', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ action: 'resume', duration: timerState.remaining, timerSize })
+                    });
+                } catch (error) {
+                    console.error('Error resuming timer:', error);
+                }
+            }
         }
     });
 
     // Reset button
     timerResetBtn.addEventListener('click', async () => {
         const duration = getTimerDuration();
-        const timerSize = parseInt(timerDisplaySize.value) || 96;
+        const timerSize = parseInt(timerDisplaySize.value) || 48;
         timerState.duration = duration;
         timerState.remaining = duration;
         timerState.isRunning = false;
         stopTimerInterval();
         updateTimerPreview();
+        updatePauseButtonState();
         
         try {
             await fetch('/api/timer', {
@@ -550,7 +611,7 @@ function initDisplay() {
         color: '#FFFFFF', 
         style: 'normal',
         displayTextSize: 96,
-        timerSize: 96
+        timerSize: 48
     };
     
     let currentPassportText = '';
@@ -676,13 +737,21 @@ function initDisplay() {
                 updateTimerDisplay(timerSize || displayFormatting.timerSize);
                 startDisplayTimer(timerSize || displayFormatting.timerSize);
                 break;
-            case 'stop':
+            case 'pause':
                 timerState.isRunning = false;
                 stopDisplayTimer();
                 if (duration !== undefined) {
                     timerState.remaining = duration;
                     updateTimerDisplay(displayFormatting.timerSize);
                 }
+                break;
+            case 'resume':
+                if (duration !== undefined) {
+                    timerState.remaining = duration;
+                }
+                timerState.isRunning = true;
+                updateTimerDisplay(timerSize || displayFormatting.timerSize);
+                startDisplayTimer(timerSize || displayFormatting.timerSize);
                 break;
             case 'reset':
                 timerState.duration = duration;
