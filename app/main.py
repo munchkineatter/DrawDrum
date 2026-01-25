@@ -115,7 +115,7 @@ async def api_update_passport(data: dict):
             "color": settings.get("text_color", "#FFFFFF"),
             "style": settings.get("text_style", "bold"),
             "displayTextSize": settings.get("display_text_size", 72),
-            "timerSize": settings.get("timer_size", 48),
+            "timerSize": settings.get("timer_size", 24),
             "columns": settings.get("columns", 1),
             "prizeSize": settings.get("prize_size", 72)
         }
@@ -129,7 +129,7 @@ async def api_timer_action(data: dict):
     """Handle timer actions and broadcast to all clients."""
     action = data.get("action", "")
     duration = data.get("duration", 0)
-    timer_size = data.get("timerSize", 48)
+    timer_size = data.get("timerSize", 24)
     
     # Broadcast timer action to all connected clients
     await manager.broadcast({
@@ -231,7 +231,7 @@ async def websocket_endpoint(websocket: WebSocket):
             "color": settings.get("text_color", "#FFFFFF"),
             "style": settings.get("text_style", "bold"),
             "displayTextSize": settings.get("display_text_size", 72),
-            "timerSize": settings.get("timer_size", 48),
+            "timerSize": settings.get("timer_size", 24),
             "columns": settings.get("columns", 1),
             "prizeSize": settings.get("prize_size", 72)
         }
@@ -259,7 +259,7 @@ async def websocket_endpoint(websocket: WebSocket):
                         "color": settings.get("text_color", "#FFFFFF"),
                         "style": settings.get("text_style", "bold"),
                         "displayTextSize": settings.get("display_text_size", 72),
-                        "timerSize": settings.get("timer_size", 48),
+                        "timerSize": settings.get("timer_size", 24),
                         "columns": settings.get("columns", 1),
                         "prizeSize": settings.get("prize_size", 32)
                     }

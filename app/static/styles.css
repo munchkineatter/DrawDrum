@@ -280,6 +280,17 @@ body {
     padding: var(--space-xs) var(--space-md);
 }
 
+.panel-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.panel-header-row h2 {
+    margin: 0;
+}
+
 /* Text Panel Body - takes more space */
 .text-panel-body {
     flex: 1;

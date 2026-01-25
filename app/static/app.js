@@ -11,7 +11,7 @@ let currentFormatting = {
     color: '#FFFFFF',
     style: 'bold',
     displayTextSize: 72,
-    timerSize: 48,
+    timerSize: 24,
     columns: 1,
     prizeSize: 72
 };
@@ -197,7 +197,13 @@ function initAdmin() {
     
     // Formatting controls
     const textColor = document.getElementById('textColor');
-    const timerDisplaySize = document.getElementById('timerDisplaySize');
+    
+    // Timer size controls
+    const timerDecrease = document.getElementById('timerDecrease');
+    const timerIncrease = document.getElementById('timerIncrease');
+    const timerSizeDisplay = document.getElementById('timerSizeDisplay');
+    
+    let currentTimerSize = 24;
     
     // Column buttons
     const col1Btn = document.getElementById('col1Btn');
@@ -252,10 +258,15 @@ function initAdmin() {
             color: textColor.value,
             style: 'bold', // Always bold
             displayTextSize: 72, // Auto-sized, but keep default
-            timerSize: parseInt(timerDisplaySize.value) || 48,
+            timerSize: currentTimerSize,
             columns: currentColumns,
             prizeSize: currentPrizeSize
         };
+    }
+    
+    // Update timer size display
+    function updateTimerSizeDisplay() {
+        timerSizeDisplay.textContent = currentTimerSize + 'px';
     }
     
     // Update column button states
@@ -288,11 +299,12 @@ function initAdmin() {
                 if (data.formatting) {
                     currentFormatting = data.formatting;
                     textColor.value = data.formatting.color || '#FFFFFF';
-                    timerDisplaySize.value = data.formatting.timerSize || 48;
+                    currentTimerSize = data.formatting.timerSize || 24;
                     currentColumns = data.formatting.columns || 1;
                     currentPrizeSize = data.formatting.prizeSize || 72;
                     updateColumnButtons(currentColumns);
                     updatePrizeSizeDisplay();
+                    updateTimerSizeDisplay();
                 }
                 updatePreviewText();
                 updatePreviewPrize();
@@ -403,6 +415,21 @@ function initAdmin() {
             updatePrizeSizeDisplay();
         }
     });
+    
+    // Timer size handlers
+    timerDecrease.addEventListener('click', () => {
+        if (currentTimerSize > 16) {
+            currentTimerSize -= 4;
+            updateTimerSizeDisplay();
+        }
+    });
+    
+    timerIncrease.addEventListener('click', () => {
+        if (currentTimerSize < 96) {
+            currentTimerSize += 4;
+            updateTimerSizeDisplay();
+        }
+    });
 
     // Update text button - sends formatting including sizes AND auto-starts timer
     updateTextBtn.addEventListener('click', async () => {
@@ -421,7 +448,7 @@ function initAdmin() {
             
             // Auto-start the timer when text is pushed
             const duration = getTimerDuration();
-            const timerSize = parseInt(timerDisplaySize.value) || 48;
+            const timerSize = currentTimerSize || 24;
             timerState.duration = duration;
             timerState.remaining = duration;
             timerState.isRunning = true;
@@ -624,7 +651,7 @@ function initAdmin() {
     // Start button - includes timer size
     timerStartBtn.addEventListener('click', async () => {
         const duration = getTimerDuration();
-        const timerSize = parseInt(timerDisplaySize.value) || 48;
+        const timerSize = currentTimerSize || 24;
         timerState.duration = duration;
         timerState.remaining = duration;
         timerState.isRunning = true;
@@ -676,7 +703,7 @@ function initAdmin() {
                 startTimerInterval();
                 updatePauseButtonState();
                 
-                const timerSize = parseInt(timerDisplaySize.value) || 48;
+                const timerSize = currentTimerSize || 24;
                 try {
                     await fetch('/api/timer', {
                         method: 'POST',
@@ -693,7 +720,7 @@ function initAdmin() {
     // Reset button
     timerResetBtn.addEventListener('click', async () => {
         const duration = getTimerDuration();
-        const timerSize = parseInt(timerDisplaySize.value) || 48;
+        const timerSize = currentTimerSize || 24;
         timerState.duration = duration;
         timerState.remaining = duration;
         timerState.isRunning = false;
@@ -733,7 +760,7 @@ function initDisplay() {
         color: '#FFFFFF', 
         style: 'bold',
         displayTextSize: 72,
-        timerSize: 48,
+        timerSize: 24,
         columns: 1,
         prizeSize: 72
     };

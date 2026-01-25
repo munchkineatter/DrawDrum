@@ -91,7 +91,14 @@
                 
                 <!-- Timer Section - Compact -->
                 <div class="panel-header panel-header-sm">
-                    <h2>Timer</h2>
+                    <div class="panel-header-row">
+                        <h2>Timer</h2>
+                        <div class="size-btns">
+                            <button type="button" class="btn btn-xs btn-ghost" id="timerDecrease">−</button>
+                            <span class="size-display" id="timerSizeDisplay">24px</span>
+                            <button type="button" class="btn btn-xs btn-ghost" id="timerIncrease">+</button>
+                        </div>
+                    </div>
                 </div>
                 <div class="panel-body panel-body-compact panel-body-centered">
                     <div class="timer-compact">
@@ -100,12 +107,6 @@
                             <span>:</span>
                             <input type="number" id="timerSeconds" class="timer-input-sm" value="00" min="0" max="59">
                         </div>
-                        <select id="timerDisplaySize" class="select-sm">
-                            <option value="48" selected>48px</option>
-                            <option value="72">72px</option>
-                            <option value="96">96px</option>
-                            <option value="128">128px</option>
-                        </select>
                         <div class="timer-display-compact" id="timerPreview">05:00</div>
                         <div class="timer-btns">
                             <button type="button" class="btn btn-success btn-xs" id="timerStartBtn">▶</button>

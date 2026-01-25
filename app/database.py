@@ -87,7 +87,7 @@ async def get_settings() -> dict:
                 "text_color": row["text_color"] or "#FFFFFF",
                 "text_style": row["text_style"] or "bold",
                 "display_text_size": row["display_text_size"] or 72,
-                "timer_size": row["timer_size"] or 48,
+                "timer_size": row["timer_size"] or 24,
                 "columns": row["columns"] if "columns" in keys else 1,
                 "prize_size": row["prize_size"] if "prize_size" in keys else 72,
                 "updated_at": row["updated_at"]
@@ -99,7 +99,7 @@ async def get_settings() -> dict:
             "text_color": "#FFFFFF",
             "text_style": "bold",
             "display_text_size": 72,
-            "timer_size": 48,
+            "timer_size": 24,
             "columns": 1,
             "prize_size": 72,
             "updated_at": None
@@ -140,7 +140,7 @@ async def update_text_formatting(formatting: dict) -> dict:
         color = formatting.get("color", "#FFFFFF")
         style = formatting.get("style", "bold")
         display_text_size = formatting.get("displayTextSize", 72)
-        timer_size = formatting.get("timerSize", 48)
+        timer_size = formatting.get("timerSize", 24)
         columns = formatting.get("columns", 1)
         prize_size = formatting.get("prizeSize", 72)
         
