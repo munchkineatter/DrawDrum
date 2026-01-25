@@ -97,11 +97,12 @@ async def api_get_settings():
 
 @app.post("/api/passport")
 async def api_update_passport(data: dict):
-    """Update passport text and formatting, then broadcast to all clients."""
+    """Update passport text, prize text, and formatting, then broadcast to all clients."""
     text = data.get("text", "")
+    prize = data.get("prize", "")
     formatting = data.get("formatting", {})
     
-    settings = await update_passport_text(text)
+    settings = await update_passport_text(text, prize)
     if formatting:
         settings = await update_text_formatting(formatting)
     
@@ -109,11 +110,12 @@ async def api_update_passport(data: dict):
     await manager.broadcast({
         "type": "passport_update",
         "passport_text": settings["passport_text"],
+        "prize_text": settings.get("prize_text", ""),
         "formatting": {
             "color": settings.get("text_color", "#FFFFFF"),
-            "style": settings.get("text_style", "normal"),
-            "displayTextSize": settings.get("display_text_size", 96),
-            "timerSize": settings.get("timer_size", 96)
+            "style": settings.get("text_style", "bold"),
+            "displayTextSize": settings.get("display_text_size", 72),
+            "timerSize": settings.get("timer_size", 48)
         }
     })
     
@@ -221,12 +223,13 @@ async def websocket_endpoint(websocket: WebSocket):
     await websocket.send_json({
         "type": "init",
         "passport_text": settings["passport_text"],
+        "prize_text": settings.get("prize_text", ""),
         "logo_path": settings["logo_path"],
         "formatting": {
             "color": settings.get("text_color", "#FFFFFF"),
-            "style": settings.get("text_style", "normal"),
-            "displayTextSize": settings.get("display_text_size", 96),
-            "timerSize": settings.get("timer_size", 96)
+            "style": settings.get("text_style", "bold"),
+            "displayTextSize": settings.get("display_text_size", 72),
+            "timerSize": settings.get("timer_size", 48)
         }
     })
     
@@ -239,18 +242,20 @@ async def websocket_endpoint(websocket: WebSocket):
             # Handle different message types from admin panel
             if msg_type == "passport_update":
                 text = data.get("text", "")
+                prize = data.get("prize", "")
                 formatting = data.get("formatting", {})
-                settings = await update_passport_text(text)
+                settings = await update_passport_text(text, prize)
                 if formatting:
                     settings = await update_text_formatting(formatting)
                 await manager.broadcast({
                     "type": "passport_update",
                     "passport_text": settings["passport_text"],
+                    "prize_text": settings.get("prize_text", ""),
                     "formatting": {
                         "color": settings.get("text_color", "#FFFFFF"),
-                        "style": settings.get("text_style", "normal"),
-                        "displayTextSize": settings.get("display_text_size", 96),
-                        "timerSize": settings.get("timer_size", 96)
+                        "style": settings.get("text_style", "bold"),
+                        "displayTextSize": settings.get("display_text_size", 72),
+                        "timerSize": settings.get("timer_size", 48)
                     }
                 })
             

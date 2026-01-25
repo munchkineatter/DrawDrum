@@ -54,6 +54,10 @@ async def init_db():
             await db.execute("ALTER TABLE settings ADD COLUMN timer_size INTEGER DEFAULT 96")
         except:
             pass
+        try:
+            await db.execute("ALTER TABLE settings ADD COLUMN prize_text TEXT DEFAULT ''")
+        except:
+            pass
         
         await db.commit()
 
@@ -63,37 +67,45 @@ async def get_settings() -> dict:
     async with aiosqlite.connect(DB_PATH) as db:
         db.row_factory = aiosqlite.Row
         cursor = await db.execute(
-            "SELECT passport_text, logo_path, text_color, text_style, display_text_size, timer_size, updated_at FROM settings WHERE id = 1"
+            "SELECT passport_text, prize_text, logo_path, text_color, text_style, display_text_size, timer_size, updated_at FROM settings WHERE id = 1"
         )
         row = await cursor.fetchone()
         if row:
             return {
                 "passport_text": row["passport_text"] or "",
+                "prize_text": row["prize_text"] if "prize_text" in row.keys() else "",
                 "logo_path": row["logo_path"] or "",
                 "text_color": row["text_color"] or "#FFFFFF",
-                "text_style": row["text_style"] or "normal",
-                "display_text_size": row["display_text_size"] or 96,
-                "timer_size": row["timer_size"] or 96,
+                "text_style": row["text_style"] or "bold",
+                "display_text_size": row["display_text_size"] or 72,
+                "timer_size": row["timer_size"] or 48,
                 "updated_at": row["updated_at"]
             }
         return {
             "passport_text": "", 
+            "prize_text": "",
             "logo_path": "", 
             "text_color": "#FFFFFF",
-            "text_style": "normal",
-            "display_text_size": 96,
-            "timer_size": 96,
+            "text_style": "bold",
+            "display_text_size": 72,
+            "timer_size": 48,
             "updated_at": None
         }
 
 
-async def update_passport_text(text: str) -> dict:
-    """Update the passport text in the database."""
+async def update_passport_text(text: str, prize: str = None) -> dict:
+    """Update the passport text and optionally prize text in the database."""
     async with aiosqlite.connect(DB_PATH) as db:
-        await db.execute(
-            "UPDATE settings SET passport_text = ?, updated_at = ? WHERE id = 1",
-            (text, datetime.utcnow().isoformat())
-        )
+        if prize is not None:
+            await db.execute(
+                "UPDATE settings SET passport_text = ?, prize_text = ?, updated_at = ? WHERE id = 1",
+                (text, prize, datetime.utcnow().isoformat())
+            )
+        else:
+            await db.execute(
+                "UPDATE settings SET passport_text = ?, updated_at = ? WHERE id = 1",
+                (text, datetime.utcnow().isoformat())
+            )
         await db.commit()
     return await get_settings()
 

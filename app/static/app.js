@@ -168,12 +168,14 @@ class WebSocketManager {
 
 function initAdmin() {
     const passportTextarea = document.getElementById('passportText');
+    const prizeInput = document.getElementById('prizeText');
     const updateTextBtn = document.getElementById('updateTextBtn');
     const clearTextBtn = document.getElementById('clearTextBtn');
     const uploadArea = document.getElementById('uploadArea');
     const logoUpload = document.getElementById('logoUpload');
     const previewText = document.getElementById('previewText');
     const previewLogo = document.getElementById('previewLogo');
+    const previewPrize = document.getElementById('previewPrize');
     const connectionStatus = document.getElementById('connectionStatus');
     
     // Logo preview/delete elements
@@ -183,7 +185,6 @@ function initAdmin() {
     
     // Formatting controls
     const textColor = document.getElementById('textColor');
-    const textStyle = document.getElementById('textStyle');
     const displayTextSize = document.getElementById('displayTextSize');
     const timerDisplaySize = document.getElementById('timerDisplaySize');
     
@@ -225,7 +226,7 @@ function initAdmin() {
     function getCurrentFormatting() {
         return {
             color: textColor.value,
-            style: textStyle.value,
+            style: 'bold', // Always bold
             displayTextSize: parseInt(displayTextSize.value) || 72,
             timerSize: parseInt(timerDisplaySize.value) || 48
         };
@@ -238,20 +239,27 @@ function initAdmin() {
                 if (data.passport_text) {
                     passportTextarea.value = data.passport_text;
                 }
+                if (data.prize_text) {
+                    prizeInput.value = data.prize_text;
+                }
                 if (data.formatting) {
                     currentFormatting = data.formatting;
                     textColor.value = data.formatting.color || '#FFFFFF';
-                    textStyle.value = data.formatting.style || 'normal';
                     displayTextSize.value = data.formatting.displayTextSize || 72;
                     timerDisplaySize.value = data.formatting.timerSize || 48;
                 }
                 updatePreviewText();
+                updatePreviewPrize();
                 // Always call updatePreviewLogo to show/hide the current logo preview
                 updatePreviewLogo(data.logo_path || '');
                 break;
             case 'passport_update':
                 if (data.formatting) {
                     currentFormatting = data.formatting;
+                }
+                if (data.prize_text !== undefined) {
+                    prizeInput.value = data.prize_text;
+                    updatePreviewPrize();
                 }
                 updatePreviewText();
                 break;
@@ -277,6 +285,16 @@ function initAdmin() {
             previewText.innerHTML = '<span class="placeholder-text">Enter text to preview</span>';
         } else {
             previewText.innerHTML = formatTextWithSettings(text, formatting);
+        }
+    }
+
+    // Update preview prize
+    function updatePreviewPrize() {
+        const prize = prizeInput.value;
+        if (prize && prize.trim() !== '') {
+            previewPrize.textContent = prize;
+        } else {
+            previewPrize.textContent = '';
         }
     }
 
@@ -317,20 +335,21 @@ function initAdmin() {
 
     // Live preview as user types or changes formatting
     passportTextarea.addEventListener('input', updatePreviewText);
+    prizeInput.addEventListener('input', updatePreviewPrize);
     textColor.addEventListener('change', updatePreviewText);
-    textStyle.addEventListener('change', updatePreviewText);
     displayTextSize.addEventListener('change', updatePreviewText);
 
     // Update text button - sends formatting including sizes AND auto-starts timer
     updateTextBtn.addEventListener('click', async () => {
         const text = passportTextarea.value;
+        const prize = prizeInput.value;
         const formatting = getCurrentFormatting();
         
         try {
             const response = await fetch('/api/passport', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ text, formatting })
+                body: JSON.stringify({ text, prize, formatting })
             });
             
             if (!response.ok) throw new Error('Failed to update');
@@ -371,13 +390,15 @@ function initAdmin() {
     // Clear text button
     clearTextBtn.addEventListener('click', async () => {
         passportTextarea.value = '';
+        prizeInput.value = '';
         updatePreviewText();
+        updatePreviewPrize();
         
         try {
             await fetch('/api/passport', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ text: '', formatting: getCurrentFormatting() })
+                body: JSON.stringify({ text: '', prize: '', formatting: getCurrentFormatting() })
             });
         } catch (error) {
             console.error('Error clearing text:', error);
@@ -639,17 +660,19 @@ function initAdmin() {
 function initDisplay() {
     const displayText = document.getElementById('displayText');
     const displayLogo = document.getElementById('displayLogo');
+    const displayPrize = document.getElementById('displayPrize');
     const displayTimer = document.getElementById('displayTimer');
     const connectionOverlay = document.getElementById('connectionOverlay');
 
     let displayFormatting = { 
         color: '#FFFFFF', 
-        style: 'normal',
+        style: 'bold',
         displayTextSize: 72,
         timerSize: 48
     };
     
     let currentPassportText = '';
+    let currentPrizeText = '';
 
     // Update connection overlay
     function updateConnectionStatus(status) {
@@ -723,6 +746,16 @@ function initDisplay() {
         }
     }
 
+    // Update display prize
+    function updateDisplayPrize(prize) {
+        currentPrizeText = prize || '';
+        if (prize && prize.trim() !== '') {
+            displayPrize.textContent = prize;
+        } else {
+            displayPrize.textContent = '';
+        }
+    }
+
     // Update timer display with user-controlled size
     function updateTimerDisplay(timerSize) {
         displayTimer.textContent = formatTime(timerState.remaining);
@@ -763,6 +796,7 @@ function initDisplay() {
                     };
                 }
                 updateDisplayText(data.passport_text);
+                updateDisplayPrize(data.prize_text);
                 updateDisplayLogo(data.logo_path);
                 break;
             case 'passport_update':
@@ -771,6 +805,10 @@ function initDisplay() {
                         ...displayFormatting,
                         ...data.formatting
                     };
+                }
+                // Update prize if provided
+                if (data.prize_text !== undefined) {
+                    updateDisplayPrize(data.prize_text);
                 }
                 // Add animation class
                 displayText.classList.add('updating');

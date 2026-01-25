@@ -271,6 +271,83 @@ body {
     align-items: center;
 }
 
+.panel-body-compact {
+    padding: var(--space-xs) var(--space-md);
+    flex: 0;
+}
+
+.panel-header-sm {
+    padding: var(--space-xs) var(--space-md);
+}
+
+/* Text Panel Body - takes more space */
+.text-panel-body {
+    flex: 1;
+    min-height: 0;
+}
+
+.text-panel-body textarea {
+    flex: 1;
+    min-height: 100px;
+    resize: none;
+}
+
+/* Input Row */
+.input-row {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.input-row label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 0;
+}
+
+.input-row.flex-grow {
+    flex: 1;
+    min-height: 0;
+}
+
+/* Text Input */
+.text-input {
+    width: 100%;
+    padding: var(--space-sm) var(--space-md);
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    color: var(--text-primary);
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.text-input:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 3px var(--accent-primary-glow);
+}
+
+.text-input::placeholder {
+    color: var(--text-muted);
+}
+
+/* Flex grow utility */
+.flex-grow {
+    flex: 1;
+}
+
+/* Preview Prize */
+.preview-prize {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--accent-warning);
+    text-align: center;
+    margin-bottom: var(--space-sm);
+}
+
 /* Controls Row */
 .controls-row {
     display: flex;
@@ -874,10 +951,25 @@ textarea::placeholder {
 
 /* Display Logo */
 .display-logo {
-    margin-bottom: var(--space-sm);
+    margin-bottom: var(--space-xs);
     max-width: 50vw;
     transition: transform var(--transition-normal), opacity var(--transition-normal);
     flex-shrink: 0;
+}
+
+/* Display Prize */
+.display-prize {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--accent-warning);
+    text-align: center;
+    text-shadow: 0 2px 20px rgba(0, 0, 0, 0.5);
+    flex-shrink: 0;
+    margin-bottom: var(--space-sm);
+}
+
+.display-prize:empty {
+    display: none;
 }
 
 .display-logo.updating {

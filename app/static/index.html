@@ -36,7 +36,7 @@
                 <div class="panel-header">
                     <h2>Display Text</h2>
                 </div>
-                <div class="panel-body">
+                <div class="panel-body text-panel-body">
                     <!-- Formatting Controls - Inline -->
                     <div class="controls-row">
                         <div class="control-group">
@@ -55,13 +55,6 @@
                             </select>
                         </div>
                         <div class="control-group">
-                            <label for="textStyle">Style</label>
-                            <select id="textStyle">
-                                <option value="normal">Normal</option>
-                                <option value="bold">Bold</option>
-                            </select>
-                        </div>
-                        <div class="control-group">
                             <label for="displayTextSize">Size</label>
                             <select id="displayTextSize">
                                 <option value="48">48px</option>
@@ -73,18 +66,30 @@
                             </select>
                         </div>
                     </div>
-                    <textarea id="passportText" placeholder="Enter passport numbers..." rows="3"></textarea>
+                    
+                    <!-- Prize Input -->
+                    <div class="input-row">
+                        <label for="prizeText">Current Prize</label>
+                        <input type="text" id="prizeText" class="text-input" placeholder="Enter current prize...">
+                    </div>
+                    
+                    <!-- Winners Input -->
+                    <div class="input-row flex-grow">
+                        <label for="passportText">Winners</label>
+                        <textarea id="passportText" placeholder="Enter winner names/numbers..." class="flex-grow"></textarea>
+                    </div>
+                    
                     <div class="btn-row">
                         <button type="button" class="btn btn-primary" id="updateTextBtn">Update Display</button>
                         <button type="button" class="btn btn-ghost" id="clearTextBtn">Clear</button>
                     </div>
                 </div>
                 
-                <!-- Timer Section -->
-                <div class="panel-header">
+                <!-- Timer Section - Compact -->
+                <div class="panel-header panel-header-sm">
                     <h2>Timer</h2>
                 </div>
-                <div class="panel-body panel-body-centered">
+                <div class="panel-body panel-body-compact panel-body-centered">
                     <div class="timer-compact">
                         <div class="timer-inputs">
                             <input type="number" id="timerMinutes" class="timer-input-sm" value="5" min="0" max="99">
@@ -101,24 +106,24 @@
                             </select>
                         </div>
                         <div class="timer-display-compact" id="timerPreview">05:00</div>
-                    </div>
-                    <div class="timer-btns">
-                        <button type="button" class="btn btn-success btn-sm" id="timerStartBtn">▶ Start</button>
-                        <button type="button" class="btn btn-warning btn-sm" id="timerPauseBtn">⏸ Pause</button>
-                        <button type="button" class="btn btn-danger btn-sm" id="timerResetBtn">↻ Reset</button>
+                        <div class="timer-btns">
+                            <button type="button" class="btn btn-success btn-xs" id="timerStartBtn">▶</button>
+                            <button type="button" class="btn btn-warning btn-xs" id="timerPauseBtn">⏸</button>
+                            <button type="button" class="btn btn-danger btn-xs" id="timerResetBtn">↻</button>
+                        </div>
                     </div>
                 </div>
                 
-                <!-- Logo Upload Section -->
-                <div class="panel-header">
+                <!-- Logo Upload Section - Compact -->
+                <div class="panel-header panel-header-sm">
                     <h2>Logo</h2>
                 </div>
-                <div class="panel-body panel-body-centered">
+                <div class="panel-body panel-body-compact panel-body-centered">
                     <div class="logo-section">
                         <div class="upload-compact" id="uploadArea">
                             <input type="file" id="logoUpload" accept="image/*" hidden>
                             <span class="upload-icon-sm">📁</span>
-                            <span>Upload Logo</span>
+                            <span>Upload</span>
                         </div>
                         <div class="current-logo-compact" id="currentLogoPreview" style="display: none;">
                             <img id="currentLogoImg" src="" alt="Logo">
@@ -135,6 +140,7 @@
                 </div>
                 <div class="panel-body preview-area">
                     <div class="preview-logo-sm" id="previewLogo"></div>
+                    <div class="preview-prize" id="previewPrize"></div>
                     <div class="preview-text-sm" id="previewText">
                         <span class="placeholder-text">Enter text to preview</span>
                     </div>
