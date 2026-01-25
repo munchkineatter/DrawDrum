@@ -766,33 +766,51 @@ function initDisplay() {
         }
     }
 
-    // Calculate optimal font size based on number of lines and viewport
-    function calculateOptimalFontSize(text, baseSize) {
+    // Calculate optimal font size based on number of lines, columns, and viewport
+    function calculateOptimalFontSize(text, baseSize, columns = 1) {
         const lines = text.split('\n').filter(line => line.trim() !== '');
         const lineCount = lines.length;
         
         if (lineCount === 0) return baseSize;
         
-        // Get available height (viewport height minus logo space, timer, and padding)
+        // Get available height (viewport height minus logo space, prize, timer, and padding)
         const viewportHeight = window.innerHeight;
         const logoElement = document.getElementById('displayLogo');
+        const prizeElement = document.getElementById('displayPrize');
         const logoHeight = logoElement ? logoElement.offsetHeight : 0;
+        const prizeHeight = prizeElement ? prizeElement.offsetHeight : 0;
         
-        // Reserve space for logo, timer, and padding (more conservative)
-        const reservedSpace = Math.max(logoHeight + 100, viewportHeight * 0.25);
+        // Reserve space for logo, prize, timer, and padding
+        const reservedSpace = logoHeight + prizeHeight + 120; // 120px for timer and margins
         const availableHeight = viewportHeight - reservedSpace;
         
-        // Calculate line height (typically 1.3x font size)
-        const lineHeight = 1.35;
+        // Calculate lines per column
+        const linesPerColumn = Math.ceil(lineCount / columns);
         
-        // Calculate max font size that would fit all lines
-        const maxSizeForLines = availableHeight / (lineCount * lineHeight);
+        // Calculate line height (typically 1.35x font size)
+        const lineHeight = 1.4;
         
-        // Use the smaller of base size or calculated size
-        let optimalSize = Math.min(baseSize, maxSizeForLines);
+        // Calculate max font size that would fit all lines in available height
+        const maxSizeForLines = availableHeight / (linesPerColumn * lineHeight);
+        
+        // For columns, also consider width constraints
+        let maxSizeForWidth = baseSize;
+        if (columns > 1) {
+            // Estimate max width per column (viewport width / columns - gaps)
+            const viewportWidth = window.innerWidth;
+            const gapSpace = (columns - 1) * 40; // Approximate gap space
+            const columnWidth = (viewportWidth - gapSpace - 80) / columns; // 80px for margins
+            
+            // Assume average line is about 20 characters, calculate max font size
+            const avgCharsPerLine = 20;
+            maxSizeForWidth = columnWidth / (avgCharsPerLine * 0.6); // 0.6 is approx char width ratio
+        }
+        
+        // Use the smaller of base size, height-based size, or width-based size
+        let optimalSize = Math.min(baseSize, maxSizeForLines, maxSizeForWidth);
         
         // Set minimum font size
-        optimalSize = Math.max(optimalSize, 20);
+        optimalSize = Math.max(optimalSize, 24);
         
         return Math.floor(optimalSize);
     }
@@ -805,17 +823,13 @@ function initDisplay() {
             displayText.style.fontSize = '';
         } else {
             // Use columns mode when columns > 1
-            const useColumns = displayFormatting.columns > 1;
+            const columns = displayFormatting.columns || 1;
+            const useColumns = columns > 1;
             displayText.innerHTML = formatTextWithSettings(text, displayFormatting, useColumns);
             
-            // Auto-size based on number of lines (only for single column)
-            if (displayFormatting.columns === 1) {
-                const optimalSize = calculateOptimalFontSize(text, displayFormatting.displayTextSize);
-                displayText.style.fontSize = `${optimalSize}px`;
-            } else {
-                // Columns use fixed sizes from CSS
-                displayText.style.fontSize = '';
-            }
+            // Auto-size based on number of lines and columns
+            const optimalSize = calculateOptimalFontSize(text, displayFormatting.displayTextSize, columns);
+            displayText.style.fontSize = `${optimalSize}px`;
         }
         // Update column layout
         updateColumnDisplay();

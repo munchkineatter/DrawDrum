@@ -1060,13 +1060,11 @@ textarea::placeholder {
 .display-text.columns-2 {
     column-count: 2;
     column-gap: var(--space-xl);
-    font-size: 64px !important;
 }
 
 .display-text.columns-3 {
     column-count: 3;
     column-gap: var(--space-lg);
-    font-size: 48px !important;
 }
 
 /* Single column - each line is a block div */
