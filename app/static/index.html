@@ -31,7 +31,7 @@
 
         <!-- Main Content - Compact Grid -->
         <main class="admin-grid">
-            <!-- Left Column: Text Input & Timer -->
+            <!-- Left Column: Text Input, Timer & Logo -->
             <section class="panel text-panel">
                 <div class="panel-header">
                     <h2>Display Text</h2>
@@ -80,11 +80,11 @@
                     </div>
                 </div>
                 
-                <!-- Timer Section (under text input) -->
+                <!-- Timer Section -->
                 <div class="panel-header">
                     <h2>Timer</h2>
                 </div>
-                <div class="panel-body">
+                <div class="panel-body panel-body-centered">
                     <div class="timer-compact">
                         <div class="timer-inputs">
                             <input type="number" id="timerMinutes" class="timer-input-sm" value="5" min="0" max="99">
@@ -108,20 +108,17 @@
                         <button type="button" class="btn btn-danger btn-sm" id="timerResetBtn">↻ Reset</button>
                     </div>
                 </div>
-            </section>
-
-            <!-- Right Column: Logo & Preview -->
-            <section class="panel preview-panel-compact">
-                <!-- Logo Upload (above preview) -->
+                
+                <!-- Logo Upload Section -->
                 <div class="panel-header">
                     <h2>Logo</h2>
                 </div>
-                <div class="panel-body logo-panel-body">
+                <div class="panel-body panel-body-centered">
                     <div class="logo-section">
                         <div class="upload-compact" id="uploadArea">
                             <input type="file" id="logoUpload" accept="image/*" hidden>
                             <span class="upload-icon-sm">📁</span>
-                            <span>Upload</span>
+                            <span>Upload Logo</span>
                         </div>
                         <div class="current-logo-compact" id="currentLogoPreview" style="display: none;">
                             <img id="currentLogoImg" src="" alt="Logo">
@@ -129,8 +126,10 @@
                         </div>
                     </div>
                 </div>
-                
-                <!-- Preview -->
+            </section>
+
+            <!-- Right Column: Preview -->
+            <section class="panel preview-panel-compact">
                 <div class="panel-header">
                     <h2>Preview</h2>
                 </div>

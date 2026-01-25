@@ -267,6 +267,10 @@ body {
     gap: var(--space-sm);
 }
 
+.panel-body-centered {
+    align-items: center;
+}
+
 /* Controls Row */
 .controls-row {
     display: flex;
@@ -306,6 +310,7 @@ body {
     display: flex;
     gap: var(--space-sm);
     align-items: center;
+    justify-content: center;
 }
 
 .upload-compact {
@@ -357,6 +362,7 @@ body {
 .timer-compact {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: var(--space-md);
     flex-wrap: wrap;
 }
@@ -368,7 +374,7 @@ body {
 }
 
 .timer-input-sm {
-    width: 50px;
+    width: 65px;
     padding: var(--space-xs) var(--space-sm);
     font-family: var(--font-mono);
     font-size: 1rem;
@@ -387,6 +393,7 @@ body {
 .timer-btns {
     display: flex;
     gap: var(--space-xs);
+    justify-content: center;
 }
 
 .timer-display-compact {
@@ -472,11 +479,6 @@ body {
     padding: var(--space-sm) var(--space-md);
 }
 
-/* Logo Panel Body */
-.logo-panel-body {
-    padding: var(--space-sm) var(--space-md);
-    flex: 0;
-}
 
 /* ============================================================================
    Forms
@@ -1211,7 +1213,11 @@ select option {
     
     .timer-compact {
         flex-direction: column;
-        align-items: flex-start;
+        align-items: center;
+    }
+    
+    .logo-section {
+        flex-direction: column;
     }
     
     .header {
@@ -1276,9 +1282,5 @@ select option {
     
     .timer-btns .btn {
         width: 100%;
-    }
-    
-    .logo-section {
-        flex-direction: column;
     }
 }
