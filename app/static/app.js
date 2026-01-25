@@ -671,12 +671,19 @@ function initDisplay() {
         const lines = text.split('\n').filter(line => line.trim() !== '');
         const lineCount = lines.length;
         
-        // Get available height (viewport height minus logo space and padding)
+        if (lineCount === 0) return baseSize;
+        
+        // Get available height (viewport height minus logo space, timer, and padding)
         const viewportHeight = window.innerHeight;
-        const availableHeight = viewportHeight * 0.55; // Reserve space for logo and timer
+        const logoElement = document.getElementById('displayLogo');
+        const logoHeight = logoElement ? logoElement.offsetHeight : 0;
+        
+        // Reserve space for logo, timer, and padding (more conservative)
+        const reservedSpace = Math.max(logoHeight + 100, viewportHeight * 0.25);
+        const availableHeight = viewportHeight - reservedSpace;
         
         // Calculate line height (typically 1.3x font size)
-        const lineHeight = 1.3;
+        const lineHeight = 1.35;
         
         // Calculate max font size that would fit all lines
         const maxSizeForLines = availableHeight / (lineCount * lineHeight);
@@ -685,7 +692,7 @@ function initDisplay() {
         let optimalSize = Math.min(baseSize, maxSizeForLines);
         
         // Set minimum font size
-        optimalSize = Math.max(optimalSize, 24);
+        optimalSize = Math.max(optimalSize, 20);
         
         return Math.floor(optimalSize);
     }

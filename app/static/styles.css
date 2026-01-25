@@ -821,11 +821,13 @@ textarea::placeholder {
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
+    min-height: 100vh;
     height: 100vh;
-    padding: var(--space-lg);
-    padding-top: var(--space-xl);
+    padding: var(--space-md);
+    padding-top: var(--space-lg);
     position: relative;
-    gap: var(--space-md);
+    gap: var(--space-sm);
+    overflow: hidden;
 }
 
 /* Connection Overlay */
@@ -872,7 +874,7 @@ textarea::placeholder {
 
 /* Display Logo */
 .display-logo {
-    margin-bottom: var(--space-md);
+    margin-bottom: var(--space-sm);
     max-width: 50vw;
     transition: transform var(--transition-normal), opacity var(--transition-normal);
     flex-shrink: 0;
@@ -894,22 +896,23 @@ textarea::placeholder {
 .display-text-wrapper {
     width: 100%;
     max-width: 95vw;
-    max-height: 45vh;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
-    overflow: hidden;
     flex: 1;
+    padding-bottom: var(--space-lg);
+    overflow: visible;
 }
 
 .display-text {
     font-weight: 700;
     text-align: center;
-    line-height: 1.3;
+    line-height: 1.35;
     letter-spacing: -0.02em;
     word-break: break-word;
     transition: transform var(--transition-normal), opacity var(--transition-normal);
     text-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+    width: 100%;
 }
 
 .display-text.updating {
