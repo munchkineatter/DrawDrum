@@ -30,21 +30,29 @@ let timerState = {
 /**
  * Format text with the current formatting settings
  */
-function formatTextWithSettings(text, formatting) {
+function formatTextWithSettings(text, formatting, useLineWrap = false) {
     if (!text || text.trim() === '') {
         return '';
+    }
+
+    const color = formatting.color || '#FFFFFF';
+    const style = formatting.style || 'bold';
+    let styleTag = style === 'bold' ? 'strong' : 'span';
+    
+    // If using columns, wrap each line individually to prevent breaking
+    if (useLineWrap) {
+        const lines = text.split('\n');
+        const formattedLines = lines.map(line => {
+            const escapedLine = escapeHtml(line);
+            return `<span class="display-line"><${styleTag} style="color: ${color}">${escapedLine}</${styleTag}></span>`;
+        });
+        return formattedLines.join('');
     }
 
     let formatted = escapeHtml(text);
     
     // Convert line breaks to <br>
     formatted = formatted.replace(/\n/g, '<br>');
-
-    // Apply formatting
-    const color = formatting.color || '#FFFFFF';
-    const style = formatting.style || 'normal';
-
-    let styleTag = style === 'bold' ? 'strong' : 'span';
     
     return `<${styleTag} style="color: ${color}">${formatted}</${styleTag}>`;
 }
@@ -187,7 +195,6 @@ function initAdmin() {
     
     // Formatting controls
     const textColor = document.getElementById('textColor');
-    const displayTextSize = document.getElementById('displayTextSize');
     const timerDisplaySize = document.getElementById('timerDisplaySize');
     
     // Column buttons
@@ -242,7 +249,7 @@ function initAdmin() {
         return {
             color: textColor.value,
             style: 'bold', // Always bold
-            displayTextSize: parseInt(displayTextSize.value) || 72,
+            displayTextSize: 72, // Auto-sized, but keep default
             timerSize: parseInt(timerDisplaySize.value) || 48,
             columns: currentColumns,
             prizeSize: currentPrizeSize
@@ -279,10 +286,9 @@ function initAdmin() {
                 if (data.formatting) {
                     currentFormatting = data.formatting;
                     textColor.value = data.formatting.color || '#FFFFFF';
-                    displayTextSize.value = data.formatting.displayTextSize || 72;
                     timerDisplaySize.value = data.formatting.timerSize || 48;
                     currentColumns = data.formatting.columns || 1;
-                    currentPrizeSize = data.formatting.prizeSize || 32;
+                    currentPrizeSize = data.formatting.prizeSize || 72;
                     updateColumnButtons(currentColumns);
                     updatePrizeSizeDisplay();
                 }
@@ -375,7 +381,6 @@ function initAdmin() {
     passportTextarea.addEventListener('input', updatePreviewText);
     prizeInput.addEventListener('input', updatePreviewPrize);
     textColor.addEventListener('change', updatePreviewText);
-    displayTextSize.addEventListener('change', updatePreviewText);
     
     // Column button handlers
     col1Btn.addEventListener('click', () => updateColumnButtons(1));
@@ -797,11 +802,18 @@ function initDisplay() {
             displayText.innerHTML = '';
             displayText.style.fontSize = '';
         } else {
-            displayText.innerHTML = formatTextWithSettings(text, displayFormatting);
+            // Use line wrapping when columns > 1 to prevent line breaks
+            const useLineWrap = displayFormatting.columns > 1;
+            displayText.innerHTML = formatTextWithSettings(text, displayFormatting, useLineWrap);
             
-            // Auto-size based on number of lines
-            const optimalSize = calculateOptimalFontSize(text, displayFormatting.displayTextSize);
-            displayText.style.fontSize = `${optimalSize}px`;
+            // Auto-size based on number of lines (only for single column)
+            if (displayFormatting.columns === 1) {
+                const optimalSize = calculateOptimalFontSize(text, displayFormatting.displayTextSize);
+                displayText.style.fontSize = `${optimalSize}px`;
+            } else {
+                // Columns use fixed sizes from CSS
+                displayText.style.fontSize = '';
+            }
         }
         // Update column layout
         updateColumnDisplay();

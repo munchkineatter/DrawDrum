@@ -1060,13 +1060,39 @@ textarea::placeholder {
 .display-text.columns-2 {
     column-count: 2;
     column-gap: var(--space-xl);
-    font-size: 72px !important;
+    font-size: 64px !important;
 }
 
 .display-text.columns-3 {
     column-count: 3;
     column-gap: var(--space-lg);
-    font-size: 56px !important;
+    font-size: 48px !important;
+}
+
+/* Prevent line breaks within entries */
+.display-text.columns-2 br,
+.display-text.columns-3 br {
+    display: block;
+}
+
+.display-text span,
+.display-text strong {
+    display: block;
+}
+
+.display-text.columns-2 span,
+.display-text.columns-2 strong,
+.display-text.columns-3 span,
+.display-text.columns-3 strong {
+    display: inline;
+}
+
+/* Each line as a block to prevent breaking */
+.display-line {
+    display: block;
+    break-inside: avoid;
+    page-break-inside: avoid;
+    white-space: nowrap;
 }
 
 /* Preview multi-column */
