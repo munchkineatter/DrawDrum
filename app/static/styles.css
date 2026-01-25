@@ -170,10 +170,10 @@ body {
     50% { opacity: 0.6; }
 }
 
-/* Admin Grid - Compact 3 Column */
+/* Admin Grid - Compact 2 Column */
 .admin-grid {
     display: grid;
-    grid-template-columns: 1.5fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr;
     gap: var(--space-md);
     flex: 1;
     min-height: 0;
@@ -356,8 +356,9 @@ body {
 /* Timer Compact */
 .timer-compact {
     display: flex;
-    align-items: flex-end;
+    align-items: center;
     gap: var(--space-md);
+    flex-wrap: wrap;
 }
 
 .timer-inputs {
@@ -390,13 +391,14 @@ body {
 
 .timer-display-compact {
     font-family: var(--font-mono);
-    font-size: 1.5rem;
+    font-size: 1.25rem;
     font-weight: 700;
     text-align: center;
-    padding: var(--space-sm);
+    padding: var(--space-xs) var(--space-md);
     background: var(--bg-secondary);
     border-radius: var(--radius-sm);
     color: var(--text-primary);
+    min-width: 70px;
 }
 
 .timer-display-compact.warning {
@@ -468,6 +470,12 @@ body {
 /* Media Panel */
 .media-panel .panel-body {
     padding: var(--space-sm) var(--space-md);
+}
+
+/* Logo Panel Body */
+.logo-panel-body {
+    padding: var(--space-sm) var(--space-md);
+    flex: 0;
 }
 
 /* ============================================================================
@@ -1175,10 +1183,6 @@ select option {
     .admin-grid {
         grid-template-columns: 1fr 1fr;
     }
-    
-    .preview-panel-compact {
-        grid-column: span 2;
-    }
 }
 
 @media (max-width: 768px) {
@@ -1203,6 +1207,11 @@ select option {
     
     .preview-panel-compact {
         grid-column: span 1;
+    }
+    
+    .timer-compact {
+        flex-direction: column;
+        align-items: flex-start;
     }
     
     .header {

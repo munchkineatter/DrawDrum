@@ -10,7 +10,7 @@
 let currentFormatting = {
     color: '#FFFFFF',
     style: 'normal',
-    displayTextSize: 96,
+    displayTextSize: 72,
     timerSize: 48
 };
 
@@ -226,8 +226,8 @@ function initAdmin() {
         return {
             color: textColor.value,
             style: textStyle.value,
-            displayTextSize: parseInt(displayTextSize.value) || 96,
-            timerSize: parseInt(timerDisplaySize.value) || 96
+            displayTextSize: parseInt(displayTextSize.value) || 72,
+            timerSize: parseInt(timerDisplaySize.value) || 48
         };
     }
 
@@ -242,8 +242,8 @@ function initAdmin() {
                     currentFormatting = data.formatting;
                     textColor.value = data.formatting.color || '#FFFFFF';
                     textStyle.value = data.formatting.style || 'normal';
-                    displayTextSize.value = data.formatting.displayTextSize || 96;
-                    timerDisplaySize.value = data.formatting.timerSize || 96;
+                    displayTextSize.value = data.formatting.displayTextSize || 72;
+                    timerDisplaySize.value = data.formatting.timerSize || 48;
                 }
                 updatePreviewText();
                 // Always call updatePreviewLogo to show/hide the current logo preview
@@ -645,7 +645,7 @@ function initDisplay() {
     let displayFormatting = { 
         color: '#FFFFFF', 
         style: 'normal',
-        displayTextSize: 96,
+        displayTextSize: 72,
         timerSize: 48
     };
     
@@ -666,7 +666,31 @@ function initDisplay() {
         }
     }
 
-    // Update display text with user-controlled size
+    // Calculate optimal font size based on number of lines and viewport
+    function calculateOptimalFontSize(text, baseSize) {
+        const lines = text.split('\n').filter(line => line.trim() !== '');
+        const lineCount = lines.length;
+        
+        // Get available height (viewport height minus logo space and padding)
+        const viewportHeight = window.innerHeight;
+        const availableHeight = viewportHeight * 0.55; // Reserve space for logo and timer
+        
+        // Calculate line height (typically 1.3x font size)
+        const lineHeight = 1.3;
+        
+        // Calculate max font size that would fit all lines
+        const maxSizeForLines = availableHeight / (lineCount * lineHeight);
+        
+        // Use the smaller of base size or calculated size
+        let optimalSize = Math.min(baseSize, maxSizeForLines);
+        
+        // Set minimum font size
+        optimalSize = Math.max(optimalSize, 24);
+        
+        return Math.floor(optimalSize);
+    }
+
+    // Update display text with auto-sizing for multiple lines
     function updateDisplayText(text) {
         currentPassportText = text;
         if (!text || text.trim() === '') {
@@ -674,7 +698,10 @@ function initDisplay() {
             displayText.style.fontSize = '';
         } else {
             displayText.innerHTML = formatTextWithSettings(text, displayFormatting);
-            displayText.style.fontSize = `${displayFormatting.displayTextSize}px`;
+            
+            // Auto-size based on number of lines
+            const optimalSize = calculateOptimalFontSize(text, displayFormatting.displayTextSize);
+            displayText.style.fontSize = `${optimalSize}px`;
         }
     }
 
@@ -804,4 +831,11 @@ function initDisplay() {
 
     // Initialize timer display (hidden until started)
     displayTimer.textContent = '';
+    
+    // Recalculate text size on window resize
+    window.addEventListener('resize', debounce(() => {
+        if (currentPassportText) {
+            updateDisplayText(currentPassportText);
+        }
+    }, 250));
 }

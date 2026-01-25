@@ -31,7 +31,7 @@
 
         <!-- Main Content - Compact Grid -->
         <main class="admin-grid">
-            <!-- Left Column: Text Input & Controls -->
+            <!-- Left Column: Text Input & Timer -->
             <section class="panel text-panel">
                 <div class="panel-header">
                     <h2>Display Text</h2>
@@ -65,8 +65,8 @@
                             <label for="displayTextSize">Size</label>
                             <select id="displayTextSize">
                                 <option value="48">48px</option>
-                                <option value="72">72px</option>
-                                <option value="96" selected>96px</option>
+                                <option value="72" selected>72px</option>
+                                <option value="96">96px</option>
                                 <option value="128">128px</option>
                                 <option value="160">160px</option>
                                 <option value="200">200px</option>
@@ -79,27 +79,8 @@
                         <button type="button" class="btn btn-ghost" id="clearTextBtn">Clear</button>
                     </div>
                 </div>
-            </section>
-
-            <!-- Middle Column: Logo & Timer -->
-            <section class="panel media-panel">
-                <div class="panel-header">
-                    <h2>Logo</h2>
-                </div>
-                <div class="panel-body">
-                    <div class="logo-section">
-                        <div class="upload-compact" id="uploadArea">
-                            <input type="file" id="logoUpload" accept="image/*" hidden>
-                            <span class="upload-icon-sm">📁</span>
-                            <span>Upload</span>
-                        </div>
-                        <div class="current-logo-compact" id="currentLogoPreview" style="display: none;">
-                            <img id="currentLogoImg" src="" alt="Logo">
-                            <button type="button" class="btn btn-danger btn-xs" id="deleteLogoBtn">×</button>
-                        </div>
-                    </div>
-                </div>
                 
+                <!-- Timer Section (under text input) -->
                 <div class="panel-header">
                     <h2>Timer</h2>
                 </div>
@@ -119,18 +100,37 @@
                                 <option value="128">128px</option>
                             </select>
                         </div>
+                        <div class="timer-display-compact" id="timerPreview">05:00</div>
                     </div>
                     <div class="timer-btns">
                         <button type="button" class="btn btn-success btn-sm" id="timerStartBtn">▶ Start</button>
                         <button type="button" class="btn btn-warning btn-sm" id="timerPauseBtn">⏸ Pause</button>
                         <button type="button" class="btn btn-danger btn-sm" id="timerResetBtn">↻ Reset</button>
                     </div>
-                    <div class="timer-display-compact" id="timerPreview">05:00</div>
                 </div>
             </section>
 
-            <!-- Right Column: Live Preview -->
+            <!-- Right Column: Logo & Preview -->
             <section class="panel preview-panel-compact">
+                <!-- Logo Upload (above preview) -->
+                <div class="panel-header">
+                    <h2>Logo</h2>
+                </div>
+                <div class="panel-body logo-panel-body">
+                    <div class="logo-section">
+                        <div class="upload-compact" id="uploadArea">
+                            <input type="file" id="logoUpload" accept="image/*" hidden>
+                            <span class="upload-icon-sm">📁</span>
+                            <span>Upload</span>
+                        </div>
+                        <div class="current-logo-compact" id="currentLogoPreview" style="display: none;">
+                            <img id="currentLogoImg" src="" alt="Logo">
+                            <button type="button" class="btn btn-danger btn-xs" id="deleteLogoBtn">×</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Preview -->
                 <div class="panel-header">
                     <h2>Preview</h2>
                 </div>
