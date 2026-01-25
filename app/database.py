@@ -58,6 +58,14 @@ async def init_db():
             await db.execute("ALTER TABLE settings ADD COLUMN prize_text TEXT DEFAULT ''")
         except:
             pass
+        try:
+            await db.execute("ALTER TABLE settings ADD COLUMN columns INTEGER DEFAULT 1")
+        except:
+            pass
+        try:
+            await db.execute("ALTER TABLE settings ADD COLUMN prize_size INTEGER DEFAULT 32")
+        except:
+            pass
         
         await db.commit()
 
@@ -67,18 +75,21 @@ async def get_settings() -> dict:
     async with aiosqlite.connect(DB_PATH) as db:
         db.row_factory = aiosqlite.Row
         cursor = await db.execute(
-            "SELECT passport_text, prize_text, logo_path, text_color, text_style, display_text_size, timer_size, updated_at FROM settings WHERE id = 1"
+            "SELECT passport_text, prize_text, logo_path, text_color, text_style, display_text_size, timer_size, columns, prize_size, updated_at FROM settings WHERE id = 1"
         )
         row = await cursor.fetchone()
         if row:
+            keys = row.keys()
             return {
                 "passport_text": row["passport_text"] or "",
-                "prize_text": row["prize_text"] if "prize_text" in row.keys() else "",
+                "prize_text": row["prize_text"] if "prize_text" in keys else "",
                 "logo_path": row["logo_path"] or "",
                 "text_color": row["text_color"] or "#FFFFFF",
                 "text_style": row["text_style"] or "bold",
                 "display_text_size": row["display_text_size"] or 72,
                 "timer_size": row["timer_size"] or 48,
+                "columns": row["columns"] if "columns" in keys else 1,
+                "prize_size": row["prize_size"] if "prize_size" in keys else 32,
                 "updated_at": row["updated_at"]
             }
         return {
@@ -89,6 +100,8 @@ async def get_settings() -> dict:
             "text_style": "bold",
             "display_text_size": 72,
             "timer_size": 48,
+            "columns": 1,
+            "prize_size": 32,
             "updated_at": None
         }
 
@@ -125,13 +138,15 @@ async def update_text_formatting(formatting: dict) -> dict:
     """Update text formatting settings in the database."""
     async with aiosqlite.connect(DB_PATH) as db:
         color = formatting.get("color", "#FFFFFF")
-        style = formatting.get("style", "normal")
-        display_text_size = formatting.get("displayTextSize", 96)
-        timer_size = formatting.get("timerSize", 96)
+        style = formatting.get("style", "bold")
+        display_text_size = formatting.get("displayTextSize", 72)
+        timer_size = formatting.get("timerSize", 48)
+        columns = formatting.get("columns", 1)
+        prize_size = formatting.get("prizeSize", 32)
         
         await db.execute(
-            "UPDATE settings SET text_color = ?, text_style = ?, display_text_size = ?, timer_size = ?, updated_at = ? WHERE id = 1",
-            (color, style, display_text_size, timer_size, datetime.utcnow().isoformat())
+            "UPDATE settings SET text_color = ?, text_style = ?, display_text_size = ?, timer_size = ?, columns = ?, prize_size = ?, updated_at = ? WHERE id = 1",
+            (color, style, display_text_size, timer_size, columns, prize_size, datetime.utcnow().isoformat())
         )
         await db.commit()
     return await get_settings()

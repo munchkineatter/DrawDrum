@@ -65,11 +65,26 @@
                                 <option value="200">200px</option>
                             </select>
                         </div>
+                        <div class="control-group">
+                            <label>Columns</label>
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-xs btn-toggle active" id="col1Btn" data-cols="1">1</button>
+                                <button type="button" class="btn btn-xs btn-toggle" id="col2Btn" data-cols="2">2</button>
+                                <button type="button" class="btn btn-xs btn-toggle" id="col3Btn" data-cols="3">3</button>
+                            </div>
+                        </div>
                     </div>
                     
-                    <!-- Prize Input -->
+                    <!-- Prize Input with size controls -->
                     <div class="input-row">
-                        <label for="prizeText">Current Prize</label>
+                        <div class="input-label-row">
+                            <label for="prizeText">Current Prize</label>
+                            <div class="size-btns">
+                                <button type="button" class="btn btn-xs btn-ghost" id="prizeDecrease">−</button>
+                                <span class="size-display" id="prizeSizeDisplay">32px</span>
+                                <button type="button" class="btn btn-xs btn-ghost" id="prizeIncrease">+</button>
+                            </div>
+                        </div>
                         <input type="text" id="prizeText" class="text-input" placeholder="Enter current prize...">
                     </div>
                     
@@ -96,15 +111,12 @@
                             <span>:</span>
                             <input type="number" id="timerSeconds" class="timer-input-sm" value="00" min="0" max="59">
                         </div>
-                        <div class="control-group">
-                            <label for="timerDisplaySize">Size</label>
-                            <select id="timerDisplaySize" class="select-sm">
-                                <option value="48" selected>48px</option>
-                                <option value="72">72px</option>
-                                <option value="96">96px</option>
-                                <option value="128">128px</option>
-                            </select>
-                        </div>
+                        <select id="timerDisplaySize" class="select-sm">
+                            <option value="48" selected>48px</option>
+                            <option value="72">72px</option>
+                            <option value="96">96px</option>
+                            <option value="128">128px</option>
+                        </select>
                         <div class="timer-display-compact" id="timerPreview">05:00</div>
                         <div class="timer-btns">
                             <button type="button" class="btn btn-success btn-xs" id="timerStartBtn">▶</button>

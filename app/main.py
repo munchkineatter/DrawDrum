@@ -115,7 +115,9 @@ async def api_update_passport(data: dict):
             "color": settings.get("text_color", "#FFFFFF"),
             "style": settings.get("text_style", "bold"),
             "displayTextSize": settings.get("display_text_size", 72),
-            "timerSize": settings.get("timer_size", 48)
+            "timerSize": settings.get("timer_size", 48),
+            "columns": settings.get("columns", 1),
+            "prizeSize": settings.get("prize_size", 32)
         }
     })
     
@@ -229,7 +231,9 @@ async def websocket_endpoint(websocket: WebSocket):
             "color": settings.get("text_color", "#FFFFFF"),
             "style": settings.get("text_style", "bold"),
             "displayTextSize": settings.get("display_text_size", 72),
-            "timerSize": settings.get("timer_size", 48)
+            "timerSize": settings.get("timer_size", 48),
+            "columns": settings.get("columns", 1),
+            "prizeSize": settings.get("prize_size", 32)
         }
     })
     
@@ -255,7 +259,9 @@ async def websocket_endpoint(websocket: WebSocket):
                         "color": settings.get("text_color", "#FFFFFF"),
                         "style": settings.get("text_style", "bold"),
                         "displayTextSize": settings.get("display_text_size", 72),
-                        "timerSize": settings.get("timer_size", 48)
+                        "timerSize": settings.get("timer_size", 48),
+                        "columns": settings.get("columns", 1),
+                        "prizeSize": settings.get("prize_size", 32)
                     }
                 })
             

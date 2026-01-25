@@ -435,6 +435,55 @@ body {
     line-height: 1;
 }
 
+/* Button Group */
+.btn-group {
+    display: flex;
+    gap: 2px;
+}
+
+.btn-toggle {
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+    min-width: 28px;
+}
+
+.btn-toggle:hover {
+    background: var(--bg-card-hover);
+    color: var(--text-primary);
+}
+
+.btn-toggle.active {
+    background: var(--accent-primary);
+    color: white;
+    border-color: var(--accent-primary);
+}
+
+/* Input Label Row with Size Controls */
+.input-label-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2px;
+}
+
+.input-label-row label {
+    margin-bottom: 0;
+}
+
+.size-btns {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.size-display {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    min-width: 35px;
+    text-align: center;
+}
+
 /* Timer Compact */
 .timer-compact {
     display: flex;
@@ -959,7 +1008,7 @@ textarea::placeholder {
 
 /* Display Prize */
 .display-prize {
-    font-size: 2.5rem;
+    font-size: 32px;
     font-weight: 700;
     color: var(--accent-warning);
     text-align: center;
@@ -1005,6 +1054,17 @@ textarea::placeholder {
     transition: transform var(--transition-normal), opacity var(--transition-normal);
     text-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
     width: 100%;
+}
+
+/* Multi-column display */
+.display-text.columns-2 {
+    column-count: 2;
+    column-gap: var(--space-xl);
+}
+
+.display-text.columns-3 {
+    column-count: 3;
+    column-gap: var(--space-xl);
 }
 
 .display-text.updating {

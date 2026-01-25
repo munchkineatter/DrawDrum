@@ -9,9 +9,11 @@
 
 let currentFormatting = {
     color: '#FFFFFF',
-    style: 'normal',
+    style: 'bold',
     displayTextSize: 72,
-    timerSize: 48
+    timerSize: 48,
+    columns: 1,
+    prizeSize: 32
 };
 
 let timerState = {
@@ -188,6 +190,19 @@ function initAdmin() {
     const displayTextSize = document.getElementById('displayTextSize');
     const timerDisplaySize = document.getElementById('timerDisplaySize');
     
+    // Column buttons
+    const col1Btn = document.getElementById('col1Btn');
+    const col2Btn = document.getElementById('col2Btn');
+    const col3Btn = document.getElementById('col3Btn');
+    
+    // Prize size controls
+    const prizeDecrease = document.getElementById('prizeDecrease');
+    const prizeIncrease = document.getElementById('prizeIncrease');
+    const prizeSizeDisplay = document.getElementById('prizeSizeDisplay');
+    
+    let currentColumns = 1;
+    let currentPrizeSize = 32;
+    
     // Timer controls
     const timerMinutes = document.getElementById('timerMinutes');
     const timerSeconds = document.getElementById('timerSeconds');
@@ -228,8 +243,23 @@ function initAdmin() {
             color: textColor.value,
             style: 'bold', // Always bold
             displayTextSize: parseInt(displayTextSize.value) || 72,
-            timerSize: parseInt(timerDisplaySize.value) || 48
+            timerSize: parseInt(timerDisplaySize.value) || 48,
+            columns: currentColumns,
+            prizeSize: currentPrizeSize
         };
+    }
+    
+    // Update column button states
+    function updateColumnButtons(cols) {
+        currentColumns = cols;
+        col1Btn.classList.toggle('active', cols === 1);
+        col2Btn.classList.toggle('active', cols === 2);
+        col3Btn.classList.toggle('active', cols === 3);
+    }
+    
+    // Update prize size display
+    function updatePrizeSizeDisplay() {
+        prizeSizeDisplay.textContent = currentPrizeSize + 'px';
     }
 
     // Handle incoming WebSocket messages
@@ -247,6 +277,10 @@ function initAdmin() {
                     textColor.value = data.formatting.color || '#FFFFFF';
                     displayTextSize.value = data.formatting.displayTextSize || 72;
                     timerDisplaySize.value = data.formatting.timerSize || 48;
+                    currentColumns = data.formatting.columns || 1;
+                    currentPrizeSize = data.formatting.prizeSize || 32;
+                    updateColumnButtons(currentColumns);
+                    updatePrizeSizeDisplay();
                 }
                 updatePreviewText();
                 updatePreviewPrize();
@@ -338,6 +372,26 @@ function initAdmin() {
     prizeInput.addEventListener('input', updatePreviewPrize);
     textColor.addEventListener('change', updatePreviewText);
     displayTextSize.addEventListener('change', updatePreviewText);
+    
+    // Column button handlers
+    col1Btn.addEventListener('click', () => updateColumnButtons(1));
+    col2Btn.addEventListener('click', () => updateColumnButtons(2));
+    col3Btn.addEventListener('click', () => updateColumnButtons(3));
+    
+    // Prize size handlers
+    prizeDecrease.addEventListener('click', () => {
+        if (currentPrizeSize > 16) {
+            currentPrizeSize -= 4;
+            updatePrizeSizeDisplay();
+        }
+    });
+    
+    prizeIncrease.addEventListener('click', () => {
+        if (currentPrizeSize < 72) {
+            currentPrizeSize += 4;
+            updatePrizeSizeDisplay();
+        }
+    });
 
     // Update text button - sends formatting including sizes AND auto-starts timer
     updateTextBtn.addEventListener('click', async () => {
@@ -668,11 +722,23 @@ function initDisplay() {
         color: '#FFFFFF', 
         style: 'bold',
         displayTextSize: 72,
-        timerSize: 48
+        timerSize: 48,
+        columns: 1,
+        prizeSize: 32
     };
     
     let currentPassportText = '';
     let currentPrizeText = '';
+    
+    // Update column display
+    function updateColumnDisplay() {
+        displayText.classList.remove('columns-2', 'columns-3');
+        if (displayFormatting.columns === 2) {
+            displayText.classList.add('columns-2');
+        } else if (displayFormatting.columns === 3) {
+            displayText.classList.add('columns-3');
+        }
+    }
 
     // Update connection overlay
     function updateConnectionStatus(status) {
@@ -733,6 +799,8 @@ function initDisplay() {
             const optimalSize = calculateOptimalFontSize(text, displayFormatting.displayTextSize);
             displayText.style.fontSize = `${optimalSize}px`;
         }
+        // Update column layout
+        updateColumnDisplay();
     }
 
     // Update display logo
@@ -751,6 +819,7 @@ function initDisplay() {
         currentPrizeText = prize || '';
         if (prize && prize.trim() !== '') {
             displayPrize.textContent = prize;
+            displayPrize.style.fontSize = `${displayFormatting.prizeSize || 32}px`;
         } else {
             displayPrize.textContent = '';
         }
@@ -795,8 +864,9 @@ function initDisplay() {
                         ...data.formatting
                     };
                 }
-                updateDisplayText(data.passport_text);
                 updateDisplayPrize(data.prize_text);
+                updateDisplayText(data.passport_text);
+                updateColumnDisplay();
                 updateDisplayLogo(data.logo_path);
                 break;
             case 'passport_update':
@@ -806,7 +876,7 @@ function initDisplay() {
                         ...data.formatting
                     };
                 }
-                // Update prize if provided
+                // Update prize if provided (update prize size before text)
                 if (data.prize_text !== undefined) {
                     updateDisplayPrize(data.prize_text);
                 }
@@ -814,6 +884,7 @@ function initDisplay() {
                 displayText.classList.add('updating');
                 setTimeout(() => {
                     updateDisplayText(data.passport_text);
+                    updateColumnDisplay();
                     displayText.classList.remove('updating');
                 }, 150);
                 break;
