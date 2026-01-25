@@ -1069,25 +1069,13 @@ textarea::placeholder {
     font-size: 48px !important;
 }
 
-/* Prevent line breaks within entries */
-.display-text.columns-2 br,
-.display-text.columns-3 br {
+/* Single column - each line is a block div */
+.display-line-single {
     display: block;
+    text-align: center;
 }
 
-.display-text span,
-.display-text strong {
-    display: block;
-}
-
-.display-text.columns-2 span,
-.display-text.columns-2 strong,
-.display-text.columns-3 span,
-.display-text.columns-3 strong {
-    display: inline;
-}
-
-/* Each line as a block to prevent breaking */
+/* Multi-column - each line wrapped to prevent breaking */
 .display-line {
     display: block;
     break-inside: avoid;

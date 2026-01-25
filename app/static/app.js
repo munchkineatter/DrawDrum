@@ -30,7 +30,7 @@ let timerState = {
 /**
  * Format text with the current formatting settings
  */
-function formatTextWithSettings(text, formatting, useLineWrap = false) {
+function formatTextWithSettings(text, formatting, useColumns = false) {
     if (!text || text.trim() === '') {
         return '';
     }
@@ -39,22 +39,24 @@ function formatTextWithSettings(text, formatting, useLineWrap = false) {
     const style = formatting.style || 'bold';
     let styleTag = style === 'bold' ? 'strong' : 'span';
     
-    // If using columns, wrap each line individually to prevent breaking
-    if (useLineWrap) {
-        const lines = text.split('\n');
+    // Split by newlines and wrap each line
+    const lines = text.split('\n');
+    
+    if (useColumns) {
+        // For columns, wrap each line to prevent breaking mid-line
         const formattedLines = lines.map(line => {
             const escapedLine = escapeHtml(line);
             return `<span class="display-line"><${styleTag} style="color: ${color}">${escapedLine}</${styleTag}></span>`;
         });
         return formattedLines.join('');
+    } else {
+        // For single column, wrap each line in a div for proper line breaks
+        const formattedLines = lines.map(line => {
+            const escapedLine = escapeHtml(line);
+            return `<div class="display-line-single"><${styleTag} style="color: ${color}">${escapedLine}</${styleTag}></div>`;
+        });
+        return formattedLines.join('');
     }
-
-    let formatted = escapeHtml(text);
-    
-    // Convert line breaks to <br>
-    formatted = formatted.replace(/\n/g, '<br>');
-    
-    return `<${styleTag} style="color: ${color}">${formatted}</${styleTag}>`;
 }
 
 /**
@@ -802,9 +804,9 @@ function initDisplay() {
             displayText.innerHTML = '';
             displayText.style.fontSize = '';
         } else {
-            // Use line wrapping when columns > 1 to prevent line breaks
-            const useLineWrap = displayFormatting.columns > 1;
-            displayText.innerHTML = formatTextWithSettings(text, displayFormatting, useLineWrap);
+            // Use columns mode when columns > 1
+            const useColumns = displayFormatting.columns > 1;
+            displayText.innerHTML = formatTextWithSettings(text, displayFormatting, useColumns);
             
             // Auto-size based on number of lines (only for single column)
             if (displayFormatting.columns === 1) {
