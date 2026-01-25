@@ -63,7 +63,7 @@ async def init_db():
         except:
             pass
         try:
-            await db.execute("ALTER TABLE settings ADD COLUMN prize_size INTEGER DEFAULT 32")
+            await db.execute("ALTER TABLE settings ADD COLUMN prize_size INTEGER DEFAULT 72")
         except:
             pass
         
@@ -89,7 +89,7 @@ async def get_settings() -> dict:
                 "display_text_size": row["display_text_size"] or 72,
                 "timer_size": row["timer_size"] or 48,
                 "columns": row["columns"] if "columns" in keys else 1,
-                "prize_size": row["prize_size"] if "prize_size" in keys else 32,
+                "prize_size": row["prize_size"] if "prize_size" in keys else 72,
                 "updated_at": row["updated_at"]
             }
         return {
@@ -101,7 +101,7 @@ async def get_settings() -> dict:
             "display_text_size": 72,
             "timer_size": 48,
             "columns": 1,
-            "prize_size": 32,
+            "prize_size": 72,
             "updated_at": None
         }
 
@@ -142,7 +142,7 @@ async def update_text_formatting(formatting: dict) -> dict:
         display_text_size = formatting.get("displayTextSize", 72)
         timer_size = formatting.get("timerSize", 48)
         columns = formatting.get("columns", 1)
-        prize_size = formatting.get("prizeSize", 32)
+        prize_size = formatting.get("prizeSize", 72)
         
         await db.execute(
             "UPDATE settings SET text_color = ?, text_style = ?, display_text_size = ?, timer_size = ?, columns = ?, prize_size = ?, updated_at = ? WHERE id = 1",

@@ -1008,7 +1008,7 @@ textarea::placeholder {
 
 /* Display Prize */
 .display-prize {
-    font-size: 32px;
+    font-size: 72px;
     font-weight: 700;
     color: var(--accent-warning);
     text-align: center;
@@ -1060,11 +1060,24 @@ textarea::placeholder {
 .display-text.columns-2 {
     column-count: 2;
     column-gap: var(--space-xl);
+    font-size: 72px !important;
 }
 
 .display-text.columns-3 {
     column-count: 3;
-    column-gap: var(--space-xl);
+    column-gap: var(--space-lg);
+    font-size: 56px !important;
+}
+
+/* Preview multi-column */
+.preview-text-sm.columns-2 {
+    column-count: 2;
+    column-gap: var(--space-sm);
+}
+
+.preview-text-sm.columns-3 {
+    column-count: 3;
+    column-gap: var(--space-sm);
 }
 
 .display-text.updating {

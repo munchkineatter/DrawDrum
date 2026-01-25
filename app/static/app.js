@@ -13,7 +13,7 @@ let currentFormatting = {
     displayTextSize: 72,
     timerSize: 48,
     columns: 1,
-    prizeSize: 32
+    prizeSize: 72
 };
 
 let timerState = {
@@ -201,7 +201,7 @@ function initAdmin() {
     const prizeSizeDisplay = document.getElementById('prizeSizeDisplay');
     
     let currentColumns = 1;
-    let currentPrizeSize = 32;
+    let currentPrizeSize = 72;
     
     // Timer controls
     const timerMinutes = document.getElementById('timerMinutes');
@@ -255,6 +255,10 @@ function initAdmin() {
         col1Btn.classList.toggle('active', cols === 1);
         col2Btn.classList.toggle('active', cols === 2);
         col3Btn.classList.toggle('active', cols === 3);
+        // Update preview columns
+        previewText.classList.remove('columns-2', 'columns-3');
+        if (cols === 2) previewText.classList.add('columns-2');
+        if (cols === 3) previewText.classList.add('columns-3');
     }
     
     // Update prize size display
@@ -387,7 +391,7 @@ function initAdmin() {
     });
     
     prizeIncrease.addEventListener('click', () => {
-        if (currentPrizeSize < 72) {
+        if (currentPrizeSize < 120) {
             currentPrizeSize += 4;
             updatePrizeSizeDisplay();
         }
@@ -724,7 +728,7 @@ function initDisplay() {
         displayTextSize: 72,
         timerSize: 48,
         columns: 1,
-        prizeSize: 32
+        prizeSize: 72
     };
     
     let currentPassportText = '';
