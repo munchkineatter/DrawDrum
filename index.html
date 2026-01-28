@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DrawDrum - Admin Panel</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="admin-page compact">
+    <div class="container-fluid">
+        <!-- Compact Header -->
+        <header class="header-compact">
+            <h1 class="logo-compact">
+                <span class="logo-icon">◉</span>
+                DrawDrum
+            </h1>
+            <div class="header-right">
+                <div class="status-indicator" id="connectionStatus">
+                    <span class="status-dot"></span>
+                    <span class="status-text">Connecting...</span>
+                </div>
+                <a href="/display" target="_blank" class="btn btn-secondary btn-sm">
+                    <span class="btn-icon">↗</span>
+                    Open Display
+                </a>
+            </div>
+        </header>
+
+        <!-- Main Content - Compact Grid -->
+        <main class="admin-grid">
+            <!-- Left Column: Text Input, Timer & Logo -->
+            <section class="panel text-panel">
+                <div class="panel-header">
+                    <h2>Display Text</h2>
+                </div>
+                <div class="panel-body text-panel-body">
+                    <!-- Formatting Controls - Inline -->
+                    <div class="controls-row">
+                        <div class="control-group">
+                            <label for="textColor">Color</label>
+                            <select id="textColor">
+                                <option value="#FFFFFF">White</option>
+                                <option value="#EF4444">Red</option>
+                                <option value="#22C55E">Green</option>
+                                <option value="#3B82F6">Blue</option>
+                                <option value="#EAB308">Yellow</option>
+                                <option value="#F97316">Orange</option>
+                                <option value="#A855F7">Purple</option>
+                                <option value="#EC4899">Pink</option>
+                                <option value="#06B6D4">Cyan</option>
+                                <option value="#FFD700">Gold</option>
+                            </select>
+                        </div>
+                        <div class="control-group">
+                            <label>Columns</label>
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-xs btn-toggle active" id="col1Btn" data-cols="1">1</button>
+                                <button type="button" class="btn btn-xs btn-toggle" id="col2Btn" data-cols="2">2</button>
+                                <button type="button" class="btn btn-xs btn-toggle" id="col3Btn" data-cols="3">3</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Prize Input with size and color controls -->
+                    <div class="input-row">
+                        <div class="input-label-row">
+                            <label for="prizeText">Current Prize</label>
+                            <div class="prize-controls">
+                                <select id="prizeColor" class="select-xs">
+                                    <option value="#F97316" selected>Orange</option>
+                                    <option value="#FFFFFF">White</option>
+                                    <option value="#EF4444">Red</option>
+                                    <option value="#22C55E">Green</option>
+                                    <option value="#3B82F6">Blue</option>
+                                    <option value="#EAB308">Yellow</option>
+                                    <option value="#A855F7">Purple</option>
+                                    <option value="#EC4899">Pink</option>
+                                    <option value="#06B6D4">Cyan</option>
+                                    <option value="#FFD700">Gold</option>
+                                </select>
+                                <div class="size-btns">
+                                    <button type="button" class="btn btn-xs btn-ghost" id="prizeDecrease">−</button>
+                                    <span class="size-display" id="prizeSizeDisplay">72px</span>
+                                    <button type="button" class="btn btn-xs btn-ghost" id="prizeIncrease">+</button>
+                                </div>
+                            </div>
+                        </div>
+                        <input type="text" id="prizeText" class="text-input" placeholder="Enter current prize...">
+                    </div>
+                    
+                    <!-- Winners Input -->
+                    <div class="input-row flex-grow">
+                        <label for="passportText">Winners</label>
+                        <textarea id="passportText" placeholder="Enter winner names/numbers..." class="flex-grow"></textarea>
+                    </div>
+                    
+                    <div class="btn-row">
+                        <button type="button" class="btn btn-primary" id="updateTextBtn">Update Display</button>
+                        <button type="button" class="btn btn-ghost" id="clearTextBtn">Clear</button>
+                    </div>
+                </div>
+                
+                <!-- Timer Section - Compact -->
+                <div class="panel-header panel-header-sm">
+                    <div class="panel-header-row">
+                        <h2>Timer</h2>
+                        <div class="size-btns">
+                            <button type="button" class="btn btn-xs btn-ghost" id="timerDecrease">−</button>
+                            <span class="size-display" id="timerSizeDisplay">24px</span>
+                            <button type="button" class="btn btn-xs btn-ghost" id="timerIncrease">+</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel-body panel-body-compact panel-body-centered">
+                    <div class="timer-compact">
+                        <div class="timer-inputs">
+                            <input type="number" id="timerMinutes" class="timer-input-sm" value="5" min="0" max="99">
+                            <span>:</span>
+                            <input type="number" id="timerSeconds" class="timer-input-sm" value="00" min="0" max="59">
+                        </div>
+                        <div class="timer-display-compact" id="timerPreview">05:00</div>
+                        <div class="timer-btns">
+                            <button type="button" class="btn btn-success btn-xs" id="timerStartBtn">▶</button>
+                            <button type="button" class="btn btn-warning btn-xs" id="timerPauseBtn">⏸</button>
+                            <button type="button" class="btn btn-danger btn-xs" id="timerResetBtn">↻</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Logo Upload Section - Compact -->
+                <div class="panel-header panel-header-sm">
+                    <h2>Logo</h2>
+                </div>
+                <div class="panel-body panel-body-compact panel-body-centered">
+                    <div class="logo-section">
+                        <div class="upload-compact" id="uploadArea">
+                            <input type="file" id="logoUpload" accept="image/*" hidden>
+                            <span class="upload-icon-sm">📁</span>
+                            <span>Upload</span>
+                        </div>
+                        <div class="current-logo-compact" id="currentLogoPreview" style="display: none;">
+                            <img id="currentLogoImg" src="" alt="Logo">
+                            <button type="button" class="btn btn-danger btn-xs" id="deleteLogoBtn">×</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Right Column: Preview -->
+            <section class="panel preview-panel-compact">
+                <div class="panel-header">
+                    <h2>Preview</h2>
+                </div>
+                <div class="panel-body preview-area">
+                    <div class="preview-timer" id="previewTimerDisplay"></div>
+                    <div class="preview-logo-sm" id="previewLogo"></div>
+                    <div class="preview-prize" id="previewPrize"></div>
+                    <div class="preview-text-sm" id="previewText">
+                        <span class="placeholder-text">Enter text to preview</span>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="/static/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            initAdmin();
+        });
+    </script>
+</body>
+</html>

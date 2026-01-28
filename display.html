@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DrawDrum - Display</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="display-page">
+    <div class="display-container">
+        <!-- Connection Status Overlay -->
+        <div class="connection-overlay" id="connectionOverlay">
+            <div class="connection-message">
+                <div class="spinner"></div>
+                <span>Connecting to server...</span>
+            </div>
+        </div>
+
+        <!-- Timer Display -->
+        <div class="display-timer" id="displayTimer"></div>
+
+        <!-- Logo Display -->
+        <div class="display-logo" id="displayLogo">
+            <!-- Logo will be inserted here -->
+        </div>
+
+        <!-- Prize Display -->
+        <div class="display-prize" id="displayPrize"></div>
+
+        <!-- Text Display -->
+        <div class="display-text-wrapper">
+            <div class="display-text" id="displayText"></div>
+        </div>
+    </div>
+
+    <script src="/static/app.js"></script>
+    <script>
+        // Initialize display view
+        document.addEventListener('DOMContentLoaded', () => {
+            initDisplay();
+        });
+    </script>
+</body>
+</html>
