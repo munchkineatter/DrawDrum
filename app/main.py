@@ -19,6 +19,21 @@ from app.database import (
     UPLOADS_DIR
 )
 
+# =============================================================================
+# Constants - Centralized default values
+# =============================================================================
+MAX_LOGO_SIZE_MB = 20
+MAX_LOGO_SIZE_BYTES = MAX_LOGO_SIZE_MB * 1024 * 1024  # 20 MB
+
+# Default formatting values (must match database.py and app.js)
+DEFAULT_TEXT_COLOR = "#FFFFFF"
+DEFAULT_TEXT_STYLE = "bold"
+DEFAULT_DISPLAY_TEXT_SIZE = 72
+DEFAULT_TIMER_SIZE = 48
+DEFAULT_COLUMNS = 1
+DEFAULT_PRIZE_SIZE = 72
+DEFAULT_PRIZE_COLOR = "#F97316"
+
 
 class ConnectionManager:
     """Manages WebSocket connections for real-time broadcasting."""
@@ -112,13 +127,13 @@ async def api_update_passport(data: dict):
         "passport_text": settings["passport_text"],
         "prize_text": settings.get("prize_text", ""),
         "formatting": {
-            "color": settings.get("text_color", "#FFFFFF"),
-            "style": settings.get("text_style", "bold"),
-            "displayTextSize": settings.get("display_text_size", 72),
-            "timerSize": settings.get("timer_size", 24),
-            "columns": settings.get("columns", 1),
-            "prizeSize": settings.get("prize_size", 72),
-            "prizeColor": settings.get("prize_color", "#F97316")
+            "color": settings.get("text_color", DEFAULT_TEXT_COLOR),
+            "style": settings.get("text_style", DEFAULT_TEXT_STYLE),
+            "displayTextSize": settings.get("display_text_size", DEFAULT_DISPLAY_TEXT_SIZE),
+            "timerSize": settings.get("timer_size", DEFAULT_TIMER_SIZE),
+            "columns": settings.get("columns", DEFAULT_COLUMNS),
+            "prizeSize": settings.get("prize_size", DEFAULT_PRIZE_SIZE),
+            "prizeColor": settings.get("prize_color", DEFAULT_PRIZE_COLOR)
         }
     })
     
@@ -154,15 +169,36 @@ async def api_upload_logo(file: UploadFile = File(...)):
             detail="Invalid file type. Allowed: PNG, JPEG, GIF, WebP"
         )
     
+    # Read file content and check size
+    content = await file.read()
+    if len(content) > MAX_LOGO_SIZE_BYTES:
+        raise HTTPException(
+            status_code=400,
+            detail=f"File too large. Maximum size is {MAX_LOGO_SIZE_MB} MB"
+        )
+    
+    # Get current logo path to delete old file later
+    current_settings = await get_settings()
+    old_logo_path = current_settings.get("logo_path", "")
+    
     # Generate unique filename
     ext = os.path.splitext(file.filename)[1] or ".png"
     filename = f"logo_{uuid.uuid4().hex[:8]}{ext}"
     filepath = os.path.join(UPLOADS_DIR, filename)
     
-    # Save file
+    # Save new file
     async with aiofiles.open(filepath, 'wb') as f:
-        content = await file.read()
         await f.write(content)
+    
+    # Delete old logo file if it exists
+    if old_logo_path:
+        old_filename = old_logo_path.replace("/uploads/", "")
+        old_filepath = os.path.join(UPLOADS_DIR, old_filename)
+        if os.path.exists(old_filepath):
+            try:
+                os.remove(old_filepath)
+            except OSError:
+                pass  # Ignore deletion errors
     
     # Update database
     logo_url = f"/uploads/{filename}"
@@ -229,13 +265,13 @@ async def websocket_endpoint(websocket: WebSocket):
         "prize_text": settings.get("prize_text", ""),
         "logo_path": settings["logo_path"],
         "formatting": {
-            "color": settings.get("text_color", "#FFFFFF"),
-            "style": settings.get("text_style", "bold"),
-            "displayTextSize": settings.get("display_text_size", 72),
-            "timerSize": settings.get("timer_size", 24),
-            "columns": settings.get("columns", 1),
-            "prizeSize": settings.get("prize_size", 72),
-            "prizeColor": settings.get("prize_color", "#F97316")
+            "color": settings.get("text_color", DEFAULT_TEXT_COLOR),
+            "style": settings.get("text_style", DEFAULT_TEXT_STYLE),
+            "displayTextSize": settings.get("display_text_size", DEFAULT_DISPLAY_TEXT_SIZE),
+            "timerSize": settings.get("timer_size", DEFAULT_TIMER_SIZE),
+            "columns": settings.get("columns", DEFAULT_COLUMNS),
+            "prizeSize": settings.get("prize_size", DEFAULT_PRIZE_SIZE),
+            "prizeColor": settings.get("prize_color", DEFAULT_PRIZE_COLOR)
         }
     })
     
@@ -258,12 +294,13 @@ async def websocket_endpoint(websocket: WebSocket):
                     "passport_text": settings["passport_text"],
                     "prize_text": settings.get("prize_text", ""),
                     "formatting": {
-                        "color": settings.get("text_color", "#FFFFFF"),
-                        "style": settings.get("text_style", "bold"),
-                        "displayTextSize": settings.get("display_text_size", 72),
-                        "timerSize": settings.get("timer_size", 24),
-                        "columns": settings.get("columns", 1),
-                        "prizeSize": settings.get("prize_size", 32)
+                        "color": settings.get("text_color", DEFAULT_TEXT_COLOR),
+                        "style": settings.get("text_style", DEFAULT_TEXT_STYLE),
+                        "displayTextSize": settings.get("display_text_size", DEFAULT_DISPLAY_TEXT_SIZE),
+                        "timerSize": settings.get("timer_size", DEFAULT_TIMER_SIZE),
+                        "columns": settings.get("columns", DEFAULT_COLUMNS),
+                        "prizeSize": settings.get("prize_size", DEFAULT_PRIZE_SIZE),
+                        "prizeColor": settings.get("prize_color", DEFAULT_PRIZE_COLOR)
                     }
                 })
             

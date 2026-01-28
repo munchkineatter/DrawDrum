@@ -4,16 +4,38 @@
  */
 
 // ============================================================================
+// Constants - Default values (must match main.py and database.py)
+// ============================================================================
+
+const DEFAULTS = {
+    TEXT_COLOR: '#FFFFFF',
+    TEXT_STYLE: 'bold',
+    DISPLAY_TEXT_SIZE: 72,
+    TIMER_SIZE: 48,
+    COLUMNS: 1,
+    PRIZE_SIZE: 72,
+    PRIZE_COLOR: '#F97316'
+};
+
+// Size constraints
+const SIZE_LIMITS = {
+    MIN_FONT_SIZE: 16,
+    MAX_TIMER_SIZE: 96,
+    MAX_PRIZE_SIZE: 120,
+    MIN_OPTIMAL_FONT: 24
+};
+
+// ============================================================================
 // Global State
 // ============================================================================
 
 let currentFormatting = {
-    color: '#FFFFFF',
-    style: 'bold',
-    displayTextSize: 72,
-    timerSize: 24,
-    columns: 1,
-    prizeSize: 72
+    color: DEFAULTS.TEXT_COLOR,
+    style: DEFAULTS.TEXT_STYLE,
+    displayTextSize: DEFAULTS.DISPLAY_TEXT_SIZE,
+    timerSize: DEFAULTS.TIMER_SIZE,
+    columns: DEFAULTS.COLUMNS,
+    prizeSize: DEFAULTS.PRIZE_SIZE
 };
 
 let timerState = {
@@ -35,8 +57,8 @@ function formatTextWithSettings(text, formatting, useColumns = false) {
         return '';
     }
 
-    const color = formatting.color || '#FFFFFF';
-    const style = formatting.style || 'bold';
+    const color = formatting.color || DEFAULTS.TEXT_COLOR;
+    const style = formatting.style || DEFAULTS.TEXT_STYLE;
     let styleTag = style === 'bold' ? 'strong' : 'span';
     
     // Split by newlines and wrap each line
@@ -204,7 +226,7 @@ function initAdmin() {
     const timerIncrease = document.getElementById('timerIncrease');
     const timerSizeDisplay = document.getElementById('timerSizeDisplay');
     
-    let currentTimerSize = 24;
+    let currentTimerSize = DEFAULTS.TIMER_SIZE;
     
     // Column buttons
     const col1Btn = document.getElementById('col1Btn');
@@ -217,9 +239,9 @@ function initAdmin() {
     const prizeIncrease = document.getElementById('prizeIncrease');
     const prizeSizeDisplay = document.getElementById('prizeSizeDisplay');
     
-    let currentColumns = 1;
-    let currentPrizeSize = 72;
-    let currentPrizeColor = '#F97316'; // Default orange
+    let currentColumns = DEFAULTS.COLUMNS;
+    let currentPrizeSize = DEFAULTS.PRIZE_SIZE;
+    let currentPrizeColor = DEFAULTS.PRIZE_COLOR;
     
     // Timer controls
     const timerMinutes = document.getElementById('timerMinutes');
@@ -259,8 +281,8 @@ function initAdmin() {
     function getCurrentFormatting() {
         return {
             color: textColor.value,
-            style: 'bold', // Always bold
-            displayTextSize: 72, // Auto-sized, but keep default
+            style: DEFAULTS.TEXT_STYLE,
+            displayTextSize: DEFAULTS.DISPLAY_TEXT_SIZE,
             timerSize: currentTimerSize,
             columns: currentColumns,
             prizeSize: currentPrizeSize,
@@ -302,11 +324,11 @@ function initAdmin() {
                 }
                 if (data.formatting) {
                     currentFormatting = data.formatting;
-                    textColor.value = data.formatting.color || '#FFFFFF';
-                    currentTimerSize = data.formatting.timerSize || 24;
-                    currentColumns = data.formatting.columns || 1;
-                    currentPrizeSize = data.formatting.prizeSize || 72;
-                    currentPrizeColor = data.formatting.prizeColor || '#F97316';
+                    textColor.value = data.formatting.color || DEFAULTS.TEXT_COLOR;
+                    currentTimerSize = data.formatting.timerSize || DEFAULTS.TIMER_SIZE;
+                    currentColumns = data.formatting.columns || DEFAULTS.COLUMNS;
+                    currentPrizeSize = data.formatting.prizeSize || DEFAULTS.PRIZE_SIZE;
+                    currentPrizeColor = data.formatting.prizeColor || DEFAULTS.PRIZE_COLOR;
                     prizeColor.value = currentPrizeColor;
                     updateColumnButtons(currentColumns);
                     updatePrizeSizeDisplay();
@@ -365,8 +387,12 @@ function initAdmin() {
 
     // Update preview logo and current logo preview
     function updatePreviewLogo(path) {
-        if (path) {
-            previewLogo.innerHTML = `<img src="${path}" alt="Logo">`;
+        if (path && isValidLogoPath(path)) {
+            const img = document.createElement('img');
+            img.src = path;
+            img.alt = 'Logo';
+            previewLogo.innerHTML = '';
+            previewLogo.appendChild(img);
             // Show current logo preview with delete button
             currentLogoImg.src = path;
             currentLogoPreview.style.display = 'flex';
@@ -376,6 +402,12 @@ function initAdmin() {
             currentLogoPreview.style.display = 'none';
             currentLogoImg.src = '';
         }
+    }
+    
+    // Validate logo path to prevent XSS
+    function isValidLogoPath(path) {
+        // Only allow paths starting with /uploads/ and containing safe characters
+        return /^\/uploads\/[a-zA-Z0-9_.-]+$/.test(path);
     }
 
     // Delete logo button handler
@@ -416,7 +448,7 @@ function initAdmin() {
     
     // Prize size handlers
     prizeDecrease.addEventListener('click', () => {
-        if (currentPrizeSize > 16) {
+        if (currentPrizeSize > SIZE_LIMITS.MIN_FONT_SIZE) {
             currentPrizeSize -= 4;
             updatePrizeSizeDisplay();
             updatePreviewPrize();
@@ -424,7 +456,7 @@ function initAdmin() {
     });
     
     prizeIncrease.addEventListener('click', () => {
-        if (currentPrizeSize < 120) {
+        if (currentPrizeSize < SIZE_LIMITS.MAX_PRIZE_SIZE) {
             currentPrizeSize += 4;
             updatePrizeSizeDisplay();
             updatePreviewPrize();
@@ -433,14 +465,14 @@ function initAdmin() {
     
     // Timer size handlers
     timerDecrease.addEventListener('click', () => {
-        if (currentTimerSize > 16) {
+        if (currentTimerSize > SIZE_LIMITS.MIN_FONT_SIZE) {
             currentTimerSize -= 4;
             updateTimerSizeDisplay();
         }
     });
     
     timerIncrease.addEventListener('click', () => {
-        if (currentTimerSize < 96) {
+        if (currentTimerSize < SIZE_LIMITS.MAX_TIMER_SIZE) {
             currentTimerSize += 4;
             updateTimerSizeDisplay();
         }
@@ -463,7 +495,7 @@ function initAdmin() {
             
             // Auto-start the timer when text is pushed
             const duration = getTimerDuration();
-            const timerSize = currentTimerSize || 24;
+            const timerSize = currentTimerSize || DEFAULTS.TIMER_SIZE;
             timerState.duration = duration;
             timerState.remaining = duration;
             timerState.isRunning = true;
@@ -692,7 +724,7 @@ function initAdmin() {
     // Start button - includes timer size
     timerStartBtn.addEventListener('click', async () => {
         const duration = getTimerDuration();
-        const timerSize = currentTimerSize || 24;
+        const timerSize = currentTimerSize || DEFAULTS.TIMER_SIZE;
         timerState.duration = duration;
         timerState.remaining = duration;
         timerState.isRunning = true;
@@ -744,7 +776,7 @@ function initAdmin() {
                 startTimerInterval();
                 updatePauseButtonState();
                 
-                const timerSize = currentTimerSize || 24;
+                const timerSize = currentTimerSize || DEFAULTS.TIMER_SIZE;
                 try {
                     await fetch('/api/timer', {
                         method: 'POST',
@@ -761,7 +793,7 @@ function initAdmin() {
     // Reset button
     timerResetBtn.addEventListener('click', async () => {
         const duration = getTimerDuration();
-        const timerSize = currentTimerSize || 24;
+        const timerSize = currentTimerSize || DEFAULTS.TIMER_SIZE;
         timerState.duration = duration;
         timerState.remaining = duration;
         timerState.isRunning = false;
@@ -798,13 +830,13 @@ function initDisplay() {
     const connectionOverlay = document.getElementById('connectionOverlay');
 
     let displayFormatting = { 
-        color: '#FFFFFF', 
-        style: 'bold',
-        displayTextSize: 72,
-        timerSize: 24,
-        columns: 1,
-        prizeSize: 72,
-        prizeColor: '#F97316'
+        color: DEFAULTS.TEXT_COLOR, 
+        style: DEFAULTS.TEXT_STYLE,
+        displayTextSize: DEFAULTS.DISPLAY_TEXT_SIZE,
+        timerSize: DEFAULTS.TIMER_SIZE,
+        columns: DEFAULTS.COLUMNS,
+        prizeSize: DEFAULTS.PRIZE_SIZE,
+        prizeColor: DEFAULTS.PRIZE_COLOR
     };
     
     let currentPassportText = '';
@@ -879,7 +911,7 @@ function initDisplay() {
         let optimalSize = Math.min(baseSize, maxSizeForLines, maxSizeForWidth);
         
         // Set minimum font size
-        optimalSize = Math.max(optimalSize, 24);
+        optimalSize = Math.max(optimalSize, SIZE_LIMITS.MIN_OPTIMAL_FONT);
         
         return Math.floor(optimalSize);
     }
@@ -904,10 +936,21 @@ function initDisplay() {
         updateColumnDisplay();
     }
 
+    // Validate logo path to prevent XSS
+    function isValidLogoPath(path) {
+        // Only allow paths starting with /uploads/ and containing safe characters
+        return /^\/uploads\/[a-zA-Z0-9_.-]+$/.test(path);
+    }
+    
     // Update display logo
     function updateDisplayLogo(path) {
-        if (path) {
-            displayLogo.innerHTML = `<img src="${path}" alt="Logo" class="display-logo-image">`;
+        if (path && isValidLogoPath(path)) {
+            const img = document.createElement('img');
+            img.src = path;
+            img.alt = 'Logo';
+            img.className = 'display-logo-image';
+            displayLogo.innerHTML = '';
+            displayLogo.appendChild(img);
             displayLogo.classList.add('has-logo');
         } else {
             displayLogo.innerHTML = '';
@@ -920,8 +963,8 @@ function initDisplay() {
         currentPrizeText = prize || '';
         if (prize && prize.trim() !== '') {
             displayPrize.textContent = prize;
-            displayPrize.style.fontSize = `${displayFormatting.prizeSize || 72}px`;
-            displayPrize.style.color = displayFormatting.prizeColor || '#F97316';
+            displayPrize.style.fontSize = `${displayFormatting.prizeSize || DEFAULTS.PRIZE_SIZE}px`;
+            displayPrize.style.color = displayFormatting.prizeColor || DEFAULTS.PRIZE_COLOR;
         } else {
             displayPrize.textContent = '';
         }
