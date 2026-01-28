@@ -188,6 +188,7 @@ function initAdmin() {
     const previewText = document.getElementById('previewText');
     const previewLogo = document.getElementById('previewLogo');
     const previewPrize = document.getElementById('previewPrize');
+    const previewTimerDisplay = document.getElementById('previewTimerDisplay');
     const connectionStatus = document.getElementById('connectionStatus');
     
     // Logo preview/delete elements
@@ -468,6 +469,7 @@ function initAdmin() {
             timerState.isRunning = true;
             startTimerInterval();
             updateTimerPreview();
+            updatePreviewTimer();
             updatePauseButtonState();
             
             // Send timer start to display
@@ -499,12 +501,28 @@ function initAdmin() {
         prizeInput.value = '';
         updatePreviewText();
         updatePreviewPrize();
+        previewTimerDisplay.textContent = '';
+        
+        // Stop the timer
+        timerState.isRunning = false;
+        if (timerState.intervalId) {
+            clearInterval(timerState.intervalId);
+            timerState.intervalId = null;
+        }
+        updatePauseButtonState();
         
         try {
             await fetch('/api/passport', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ text: '', prize: '', formatting: getCurrentFormatting() })
+            });
+            
+            // Stop the display timer
+            await fetch('/api/timer', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'stop' })
             });
         } catch (error) {
             console.error('Error clearing text:', error);
@@ -589,6 +607,15 @@ function initAdmin() {
         if (timerClass) {
             timerPreview.classList.add(timerClass);
         }
+        // Also update the preview panel timer if running
+        if (timerState.isRunning || timerState.remaining !== timerState.duration) {
+            previewTimerDisplay.textContent = formatTime(timerState.remaining);
+        }
+    }
+    
+    function updatePreviewTimer() {
+        // Show timer in preview panel
+        previewTimerDisplay.textContent = formatTime(timerState.remaining);
     }
 
     function handleTimerAction(action, duration, timerSize) {
