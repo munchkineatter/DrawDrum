@@ -495,6 +495,21 @@ body {
     text-align: center;
 }
 
+.prize-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.select-xs {
+    padding: 2px 4px;
+    font-size: 0.7rem;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+}
+
 /* Timer Compact */
 .timer-compact {
     display: flex;
@@ -1021,7 +1036,7 @@ textarea::placeholder {
 .display-prize {
     font-size: 72px;
     font-weight: 700;
-    color: var(--accent-warning);
+    color: #F97316;
     text-align: center;
     text-shadow: 0 2px 20px rgba(0, 0, 0, 0.5);
     flex-shrink: 0;
@@ -1114,6 +1129,64 @@ textarea::placeholder {
 
 .display-text .text-xlarge {
     font-size: 2em;
+}
+
+/* Animated Spade Ribbons */
+.ribbon-left,
+.ribbon-right {
+    position: fixed;
+    top: 0;
+    width: 50px;
+    height: 100vh;
+    overflow: hidden;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.ribbon-left {
+    left: 0;
+}
+
+.ribbon-right {
+    right: 0;
+}
+
+.ribbon-scroll {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    animation: scrollDown 15s linear infinite;
+}
+
+.ribbon-left .ribbon-scroll {
+    animation: scrollDown 15s linear infinite;
+}
+
+.ribbon-right .ribbon-scroll {
+    animation: scrollDown 18s linear infinite;
+}
+
+@keyframes scrollDown {
+    0% {
+        transform: translateY(-50%);
+    }
+    100% {
+        transform: translateY(0%);
+    }
+}
+
+.spade {
+    font-size: 32px;
+    padding: 10px 0;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+.spade.cyan {
+    color: #06B6D4;
+}
+
+.spade.white {
+    color: #FFFFFF;
 }
 
 .waiting-text {

@@ -64,14 +64,28 @@
                         </div>
                     </div>
                     
-                    <!-- Prize Input with size controls -->
+                    <!-- Prize Input with size and color controls -->
                     <div class="input-row">
                         <div class="input-label-row">
                             <label for="prizeText">Current Prize</label>
-                            <div class="size-btns">
-                                <button type="button" class="btn btn-xs btn-ghost" id="prizeDecrease">−</button>
-                                <span class="size-display" id="prizeSizeDisplay">72px</span>
-                                <button type="button" class="btn btn-xs btn-ghost" id="prizeIncrease">+</button>
+                            <div class="prize-controls">
+                                <select id="prizeColor" class="select-xs">
+                                    <option value="#F97316" selected>Orange</option>
+                                    <option value="#FFFFFF">White</option>
+                                    <option value="#EF4444">Red</option>
+                                    <option value="#22C55E">Green</option>
+                                    <option value="#3B82F6">Blue</option>
+                                    <option value="#EAB308">Yellow</option>
+                                    <option value="#A855F7">Purple</option>
+                                    <option value="#EC4899">Pink</option>
+                                    <option value="#06B6D4">Cyan</option>
+                                    <option value="#FFD700">Gold</option>
+                                </select>
+                                <div class="size-btns">
+                                    <button type="button" class="btn btn-xs btn-ghost" id="prizeDecrease">−</button>
+                                    <span class="size-display" id="prizeSizeDisplay">72px</span>
+                                    <button type="button" class="btn btn-xs btn-ghost" id="prizeIncrease">+</button>
+                                </div>
                             </div>
                         </div>
                         <input type="text" id="prizeText" class="text-input" placeholder="Enter current prize...">

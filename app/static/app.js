@@ -210,13 +210,15 @@ function initAdmin() {
     const col2Btn = document.getElementById('col2Btn');
     const col3Btn = document.getElementById('col3Btn');
     
-    // Prize size controls
+    // Prize controls
+    const prizeColor = document.getElementById('prizeColor');
     const prizeDecrease = document.getElementById('prizeDecrease');
     const prizeIncrease = document.getElementById('prizeIncrease');
     const prizeSizeDisplay = document.getElementById('prizeSizeDisplay');
     
     let currentColumns = 1;
     let currentPrizeSize = 72;
+    let currentPrizeColor = '#F97316'; // Default orange
     
     // Timer controls
     const timerMinutes = document.getElementById('timerMinutes');
@@ -260,7 +262,8 @@ function initAdmin() {
             displayTextSize: 72, // Auto-sized, but keep default
             timerSize: currentTimerSize,
             columns: currentColumns,
-            prizeSize: currentPrizeSize
+            prizeSize: currentPrizeSize,
+            prizeColor: currentPrizeColor
         };
     }
     
@@ -302,6 +305,8 @@ function initAdmin() {
                     currentTimerSize = data.formatting.timerSize || 24;
                     currentColumns = data.formatting.columns || 1;
                     currentPrizeSize = data.formatting.prizeSize || 72;
+                    currentPrizeColor = data.formatting.prizeColor || '#F97316';
+                    prizeColor.value = currentPrizeColor;
                     updateColumnButtons(currentColumns);
                     updatePrizeSizeDisplay();
                     updateTimerSizeDisplay();
@@ -351,6 +356,7 @@ function initAdmin() {
         const prize = prizeInput.value;
         if (prize && prize.trim() !== '') {
             previewPrize.textContent = prize;
+            previewPrize.style.color = currentPrizeColor;
         } else {
             previewPrize.textContent = '';
         }
@@ -401,11 +407,18 @@ function initAdmin() {
     col2Btn.addEventListener('click', () => updateColumnButtons(2));
     col3Btn.addEventListener('click', () => updateColumnButtons(3));
     
+    // Prize color handler
+    prizeColor.addEventListener('change', () => {
+        currentPrizeColor = prizeColor.value;
+        updatePreviewPrize();
+    });
+    
     // Prize size handlers
     prizeDecrease.addEventListener('click', () => {
         if (currentPrizeSize > 16) {
             currentPrizeSize -= 4;
             updatePrizeSizeDisplay();
+            updatePreviewPrize();
         }
     });
     
@@ -413,6 +426,7 @@ function initAdmin() {
         if (currentPrizeSize < 120) {
             currentPrizeSize += 4;
             updatePrizeSizeDisplay();
+            updatePreviewPrize();
         }
     });
     
@@ -762,7 +776,8 @@ function initDisplay() {
         displayTextSize: 72,
         timerSize: 24,
         columns: 1,
-        prizeSize: 72
+        prizeSize: 72,
+        prizeColor: '#F97316'
     };
     
     let currentPassportText = '';
@@ -878,7 +893,8 @@ function initDisplay() {
         currentPrizeText = prize || '';
         if (prize && prize.trim() !== '') {
             displayPrize.textContent = prize;
-            displayPrize.style.fontSize = `${displayFormatting.prizeSize || 32}px`;
+            displayPrize.style.fontSize = `${displayFormatting.prizeSize || 72}px`;
+            displayPrize.style.color = displayFormatting.prizeColor || '#F97316';
         } else {
             displayPrize.textContent = '';
         }

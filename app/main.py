@@ -117,7 +117,8 @@ async def api_update_passport(data: dict):
             "displayTextSize": settings.get("display_text_size", 72),
             "timerSize": settings.get("timer_size", 24),
             "columns": settings.get("columns", 1),
-            "prizeSize": settings.get("prize_size", 72)
+            "prizeSize": settings.get("prize_size", 72),
+            "prizeColor": settings.get("prize_color", "#F97316")
         }
     })
     
@@ -233,7 +234,8 @@ async def websocket_endpoint(websocket: WebSocket):
             "displayTextSize": settings.get("display_text_size", 72),
             "timerSize": settings.get("timer_size", 24),
             "columns": settings.get("columns", 1),
-            "prizeSize": settings.get("prize_size", 72)
+            "prizeSize": settings.get("prize_size", 72),
+            "prizeColor": settings.get("prize_color", "#F97316")
         }
     })
     
